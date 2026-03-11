@@ -1,4 +1,4 @@
-package com.kh.mallapi.controller;
+package com.kh.trip.controller;
 
 public class NoticeController {
 

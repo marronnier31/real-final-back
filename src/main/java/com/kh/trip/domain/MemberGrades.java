@@ -1,9 +1,6 @@
 package com.kh.trip.domain;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.kh.trip.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,14 +15,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "MEMBER_GRADES")
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class MemberGrades {
+public class MemberGrades extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEMBER_GRADES")
 	@SequenceGenerator(name = "SEQ_MEMBER_GRADES", sequenceName = "SEQ_MEMBER_GRADES", allocationSize = 1)
@@ -56,13 +55,5 @@ public class MemberGrades {
 	@Column(name = "STATUS", nullable = false)
 	@Builder.Default
 	private boolean status = true; //삭제시 false
-	
-	@Column(name = "REG_DATE", nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime regDate;
-	
-	@Column(name = "UPD_DATE", nullable = false)
-	@UpdateTimestamp
-	private LocalDateTime updDate;
 	
 }

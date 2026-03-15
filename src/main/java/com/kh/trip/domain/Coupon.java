@@ -8,9 +8,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
@@ -36,6 +39,10 @@ public class Coupon extends BaseTimeEntity{
 	@SequenceGenerator(name = "SEQ_COUPONS", sequenceName = "SEQ_COUPONS", allocationSize = 1)
 	@Column(name = "COUPON_NO")
 	private Long couponNo;
+	
+	@ManyToOne(fetch = FetchType.LAZY) // 지연 로딩으로 성능 최적화
+	@JoinColumn(name = "ISSUED_BY_USER_NO", nullable = false) // 실제 DB의 FK 컬럼명
+	private User user;
 	
 	@Column(name = "COUPON_NAME", length = 100, unique = true, nullable = false)
 	private String couponName;

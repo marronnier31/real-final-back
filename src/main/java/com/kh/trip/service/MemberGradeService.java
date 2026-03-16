@@ -12,4 +12,8 @@ public interface MemberGradeService {
 
 	MemberGradeDTO findById(Long gradeNo);
 
+	void delete(Long gradeNo);
+
+	void update(MemberGradeDTO memberGradeDTO);
+
 }

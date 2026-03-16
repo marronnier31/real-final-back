@@ -1,6 +1,7 @@
 package com.kh.trip.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -39,11 +40,33 @@ public class MemberGradeServiceImpl implements MemberGradeService{
 
 	@Override
 	public MemberGradeDTO findById(Long gradeNo) {
-		java.util.Optional<MemberGrade> result = repository.findById(gradeNo);
+		Optional<MemberGrade> result = repository.findById(gradeNo);
 		MemberGrade grade = result.orElseThrow();
 		MemberGradeDTO gradeDTO = modelMapper.map(grade, MemberGradeDTO.class);
 		return gradeDTO;
 	}
+
+	@Override
+	public void delete(Long gradeNo) {
+		Optional<MemberGrade> result = repository.findById(gradeNo);
+		MemberGrade grade = result.orElseThrow();
+		grade.changeStatus(false);
+		repository.save(grade);
+	}
+
+	@Override
+	public void update(MemberGradeDTO gradeDTO) {
+		Optional<MemberGrade> result = repository.findById(gradeDTO.getGradeNo());
+		MemberGrade grade = result.orElseThrow();
+		grade.changeName(gradeDTO.getGradeName());
+		grade.changeMinAmount(gradeDTO.getMinTotalAmount());
+		grade.changeMinStayCount(gradeDTO.getMinStayCount());
+		grade.changeMileageRate(gradeDTO.getMileageRate());
+		grade.changeBenefitDESC(gradeDTO.getBenefitDESC());
+		repository.save(grade);
+	}
+	
+	
 
 	
 	

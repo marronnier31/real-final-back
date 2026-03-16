@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,9 +18,6 @@ import com.kh.trip.service.MemberGradeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.RequestParam;
-
-
-
 
 @RestController
 @RequiredArgsConstructor
@@ -43,9 +41,23 @@ public class MemberGradeController {
 	}
 	
 	@GetMapping("/{gno}")
-	public MemberGradeDTO findById(@PathVariable(name="gno") Long gradeNo) {
-		log.info("MemberGradeFindById()");
+	public MemberGradeDTO findById(@PathVariable(name = "gno") Long gradeNo) {
+		log.info("MemberGradeFindById()"+ gradeNo);
 		return service.findById(gradeNo);
 	}
 	
+	@DeleteMapping("/{gno}")
+	public Map<String, String> delete(@PathVariable(name = "gno") Long gradeNo) {
+		log.info("MemberGradeDelete" + gradeNo);
+		service.delete(gradeNo);
+		return Map.of("result","SUCCESS");
+	}
+	
+	@PatchMapping("/{gno}")
+	public Map<String, String> update(@PathVariable(name = "gno") Long gradeNo, @RequestBody MemberGradeDTO memberGradeDTO) {
+		memberGradeDTO.setGradeNo(gradeNo);
+		log.info("MemberGradeUpdate" + gradeNo);
+		service.update(memberGradeDTO);
+		return Map.of("result","SUCCESS");
+	}
 }

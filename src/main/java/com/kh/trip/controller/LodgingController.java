@@ -1,0 +1,39 @@
+package com.kh.trip.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.kh.trip.domain.Lodging;
+import com.kh.trip.dto.LodgingDTO;
+import com.kh.trip.service.LodgingService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController // 이 클래스가 REST API 컨트롤러라는 뜻
+// 메서드 반환값을 JSON 형태로 응답
+@RequestMapping("/api/lodgings")
+@RequiredArgsConstructor
+public class LodgingController {
+
+	private final LodgingService lodgingService;
+
+	/**
+	 * 숙소 등록 요청: POST /api/lodgings 흐름 1. 프론트가 JSON 데이터를 보낸다. 2. @RequestBody가 JSON을
+	 * LodgingDTO로 바꿔준다. 3. DTO를 Entity로 변환한다. 4. Service에 저장 요청을 보낸다. 5. 저장된 결과를 다시
+	 * DTO로 바꿔서 응답한다.
+	 * 
+	 * @ResponseStatus(HttpStatus.CREATED) - 등록 성공 시 201 Created 상태코드 반환
+	 */
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public LodgingDTO createLodging(@RequestBody LodgingDTO lodgingDTO) {
+		Lodging lodging = lodgingDTO.toEntity();
+		Lodging savedLodging = lodgingService.createLodging(lodging);
+		return LodgingDTO.fromEntity(savedLodging);
+	}
+
+}

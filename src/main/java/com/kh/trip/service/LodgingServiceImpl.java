@@ -1,0 +1,71 @@
+package com.kh.trip.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kh.trip.domain.Lodging;
+import com.kh.trip.repository.LodgingRepository;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * LodgingService 인터페이스를 실제로 구현하는 클래스
+ * 
+ * @Service - 스프링이 이 클래스를 서비스 빈(Bean)으로 등록해준다.
+ * 
+ * @RequiredArgsConstructor - final 필드를 매개변수로 받는 생성자를 Lombok이 자동 생성해준다. - 즉, 생성자
+ *                          주입 방식으로 LodgingRepository를 자동 주입받는다.
+ * 
+ * @Transactional - DB 작업을 하나의 트랜잭션 단위로 처리한다. - create / update / delete 같은 변경
+ *                작업에서 특히 중요하다.
+ */
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+
+public class LodgingServiceImpl implements LodgingService {
+
+	private final LodgingRepository lodgingRepository;
+
+	// 숙소 등록
+	@Override
+	public Lodging createLodging(Lodging lodging) {
+		// null 체크
+		if (lodging == null) {
+			throw new IllegalArgumentException("숙소 정보가 없습니다.");
+		}
+
+		// 숙소명 필수 체크
+		if (lodging.getLodgingName() == null || lodging.getLodgingName().isBlank()) {
+			throw new IllegalArgumentException("숙소명은 필수입니다.");
+		}
+
+		// 지역 필수 체크
+		if (lodging.getRegion() == null || lodging.getRegion().isBlank()) {
+			throw new IllegalArgumentException("지역 정보는 필수입니다.");
+		}
+
+		// 주소 필수 체크
+		if (lodging.getAddress() == null || lodging.getAddress().isBlank()) {
+			throw new IllegalArgumentException("주소는 필수입니다.");
+		}
+
+		// 상태값이 비어있으면 기본값 ACTIVE로 저장
+		// 엔티티에서 @Builder.Default를 설정했더라도
+		// 혹시 외부에서 null로 넣어오는 경우를 방어하기 위해 한번 더 체크한다.
+		Lodging saveLodging = lodging;
+
+		if (lodging.getStatus() == null || lodging.getStatus().isBlank()) {
+			saveLodging = Lodging.builder().lodgingNo(lodging.getLodgingNo()).hostNo(lodging.getHostNo())
+					.lodgingName(lodging.getLodgingName()).lodgingType(lodging.getLodgingType())
+					.region(lodging.getRegion()).address(lodging.getAddress()).detailAddress(lodging.getDetailAddress())
+					.zipCode(lodging.getZipCode()).latitude(lodging.getLatitude()).longitude(lodging.getLongitude())
+					.description(lodging.getDescription()).checkInTime(lodging.getCheckInTime())
+					.checkOutTime(lodging.getCheckOutTime()).status("ACTIVE").build();
+		}
+
+		return lodgingRepository.save(saveLodging);
+	}
+
+}

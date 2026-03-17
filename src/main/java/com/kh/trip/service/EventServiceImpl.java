@@ -50,6 +50,18 @@ public class EventServiceImpl implements EventService {
 				.totalCount(totalCount).pageRequestDTO(pageRequestDTO).build();
 	}
 
+	//findById
+	@Override
+	public EventDTO findById(Long eno) {
+		log.info(".....................");
+		java.util.Optional<Event> result = eventRepository.findById(eno);
+		Event event = result.orElseThrow();
+
+		return EventDTO.builder().eventNo(event.getEventNo()).title(event.getTitle()).content(event.getContent())
+				.thumbnailUrl(event.getThumbnailUrl()).startDate(event.getStartDate())
+				.adminUserNo(event.getAdminUserNo()!=null?event.getAdminUserNo().getUserNo():null).build();
+	}
+		
 	// save
 	@Override
 	public Long save(EventDTO eventDTO) {
@@ -84,6 +96,12 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public void delete(Long eno) {
 		eventRepository.deleteById(eno);
+	
+	
 	}
+
+	
+
+	
 
 }

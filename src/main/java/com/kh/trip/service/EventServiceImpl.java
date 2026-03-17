@@ -12,10 +12,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.kh.trip.domain.Event;
+import com.kh.trip.domain.User;
 import com.kh.trip.dto.EventDTO;
 import com.kh.trip.dto.PageRequestDTO;
 import com.kh.trip.dto.PageResponseDTO;
 import com.kh.trip.repository.EventRepository;
+import com.kh.trip.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EventServiceImpl implements EventService {
 	private final EventRepository eventRepository;
+	private final UserRepository userRepository;
 	private final ModelMapper modelMapper;
 
 	// list
@@ -47,14 +50,27 @@ public class EventServiceImpl implements EventService {
 				.totalCount(totalCount).pageRequestDTO(pageRequestDTO).build();
 	}
 
+	//findById
+	@Override
+	public EventDTO findById(Long eno) {
+		log.info(".....................");
+		java.util.Optional<Event> result = eventRepository.findById(eno);
+		Event event = result.orElseThrow();
+
+		return EventDTO.builder().eventNo(event.getEventNo()).title(event.getTitle()).content(event.getContent())
+				.thumbnailUrl(event.getThumbnailUrl()).startDate(event.getStartDate())
+				.adminUserNo(event.getAdminUserNo()!=null?event.getAdminUserNo().getUserNo():null).build();
+	}
+		
 	// save
 	@Override
 	public Long save(EventDTO eventDTO) {
 		log.info(".........");
+		User user = userRepository.findById(eventDTO.getAdminUserNo()).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 관리자 번호입니다."));
 		Event event = Event.builder().title(eventDTO.getTitle()).content(eventDTO.getContent())
 				.thumbnailUrl(eventDTO.getThumbnailUrl()).startDate(eventDTO.getStartDate())
 				.endDate(eventDTO.getEndDate()).viewCount((long) eventDTO.getViewCount())
-				// 만약 adminUserNo가 필요하다면 여기서 추가 설정
+				.adminUserNo(user)
 				.build();
 		Event savedEvent = eventRepository.save(event);
 		return savedEvent.getEventNo();
@@ -80,6 +96,12 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public void delete(Long eno) {
 		eventRepository.deleteById(eno);
+	
+	
 	}
+
+	
+
+	
 
 }

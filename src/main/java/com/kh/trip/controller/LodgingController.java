@@ -70,7 +70,7 @@ public class LodgingController {
 	public List<LodgingDTO> getAllLodgings() {
 		return lodgingService.getAllLodgings().stream().map(LodgingDTO::fromEntity).toList();
 	}
-	
+
 	/**
 	 * 지역으로 숙소 목록 조회
 	 * 
@@ -81,6 +81,19 @@ public class LodgingController {
 	@GetMapping("/region")
 	public List<LodgingDTO> getLodgingsByRegion(@RequestParam String region) {
 		return lodgingService.getLodgingsByRegion(region).stream().map(LodgingDTO::fromEntity).toList();
+	}
+
+	/**
+	 * 숙소명 키워드 검색
+	 * 
+	 * 요청 예시: GET /api/lodgings/search?keyword=호텔
+	 * 
+	 * 예:"호텔"이 포함된 숙소명 검색
+	 * 
+	 */
+	@GetMapping("/search")
+	public List<LodgingDTO> searchLodgingsByName(@RequestParam String keyword) {
+		return lodgingService.searchLodgingsByName(keyword).stream().map(LodgingDTO::fromEntity).toList();
 	}
 
 }

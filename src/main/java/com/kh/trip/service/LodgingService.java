@@ -18,4 +18,7 @@ public interface LodgingService {
 	// 지역으로 숙소 목록 조회
 	public List<Lodging> getLodgingsByRegion(String region);
 
+	// 숙소명 키워드 검색
+	public List<Lodging> searchLodgingsByName(String keyword);
+
 }

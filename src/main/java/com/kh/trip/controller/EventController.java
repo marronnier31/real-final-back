@@ -29,9 +29,9 @@ public class EventController {
 	
 	//가로로 보이는 이벤트 리스트
 	@GetMapping("/list")
-	public PageResponseDTO<EventDTO> list(PageRequestDTO pageRequestDTO) {
+	public PageResponseDTO<EventDTO> findAll(PageRequestDTO pageRequestDTO) {
 		log.info(pageRequestDTO);
-		return service.list(pageRequestDTO);
+		return service.findAll(pageRequestDTO);
 	}
 	//이벤트변경,새로운거 저장
 	@PostMapping("/")

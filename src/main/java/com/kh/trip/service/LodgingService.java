@@ -24,4 +24,7 @@ public interface LodgingService {
 	// 숙소 수정
 	public Lodging updateLodging(Long lodgingNo, Lodging lodging);
 
+	// 숙소 삭제
+	public void deleteLodging(Long lodgingNo);
+
 }

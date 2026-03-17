@@ -3,6 +3,7 @@ package com.kh.trip.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -112,6 +113,19 @@ public class LodgingController {
 		Lodging lodging = lodgingDTO.toEntity();
 		Lodging updatedLodging = lodgingService.updateLodging(lodgingNo, lodging);
 		return LodgingDTO.fromEntity(updatedLodging);
+	}
+
+	/**
+	 * 숙소 삭제
+	 * 
+	 * 요청 예시: DELETE /api/lodgings/1
+	 * 
+	 * 삭제 성공 시 응답 바디 없이 204 No Content 반환
+	 */
+	@DeleteMapping("/{lodgingNo}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteLodging(@PathVariable Long lodgingNo) {
+		lodgingService.deleteLodging(lodgingNo);
 	}
 
 }

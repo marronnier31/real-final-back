@@ -1,6 +1,8 @@
 package com.kh.trip.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,20 @@ public class LodgingController {
 		Lodging lodging = lodgingDTO.toEntity();
 		Lodging savedLodging = lodgingService.createLodging(lodging);
 		return LodgingDTO.fromEntity(savedLodging);
+	}
+
+	/**
+	 * 숙소 단건 조회
+	 * 
+	 * 요청 예시: GET /api/lodgings/1
+	 * 
+	 * @PathVariable - URL 경로의 값을 변수로 받아온다. - 여기서는 lodgingNo 자리에 들어온 숫자를 Long 타입으로
+	 *               받는다.
+	 */
+	@GetMapping("/{lodgingNo}")
+	public LodgingDTO getLodging(@PathVariable Long lodgingNo) {
+		Lodging lodging = lodgingService.getLodging(lodgingNo);
+		return LodgingDTO.fromEntity(lodging);
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.kh.trip.service;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,14 @@ public class LodgingServiceImpl implements LodgingService {
 		}
 
 		return lodgingRepository.save(saveLodging);
+	}
+
+	// 숙소 단건 조회
+	@Override
+	@Transactional(readOnly = true)
+	public Lodging getLodging(Long lodgingNo) {
+		return lodgingRepository.findById(lodgingNo)
+				.orElseThrow(() -> new NoSuchElementException("해당 숙소를 찾을 수 없습니다. lodgingNo=" + lodgingNo));
 	}
 
 }

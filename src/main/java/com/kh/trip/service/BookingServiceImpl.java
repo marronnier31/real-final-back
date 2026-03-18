@@ -45,13 +45,13 @@ public class BookingServiceImpl implements BookingService{
 	}
 
 	@Override
-	public PageResponseDTO<BookingDTO> findByUserId(Long userNo, PageRequestDTO pageRequestDTO) {
+	public PageResponseDTO<BookingDTO> findByUserId(Long userNo,PageRequestDTO pageRequestDTO) {
 		Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1, pageRequestDTO.getSize(),Sort.by("bookingNo").descending());
 		User user = userRepository.findById(userNo).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 정보입니다.")); 
-		Page<Booking> result = repository.findByUserId(userNo, pageable);
+		Page<Booking> result = repository.findByUserId(user.getUserNo(), pageable);
 		
 		List<BookingDTO> dtoList = result.get().map(booking -> BookingDTO.builder()
-				.bookingNo(booking.getBookingNo()).userNo(userNo).userCouponNo(booking.getUserCoupon().getUserCouponNo())
+				.bookingNo(booking.getBookingNo()).userNo(user.getUserNo()).userCouponNo(booking.getUserCoupon().getUserCouponNo())
 				.checkInDate(booking.getCheckInDate()).checkOutDate(booking.getCheckOutDate()).guestCount(booking.getGuestCount())
 				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount()).totalPrice(booking.getTotalPrice())
 				.status(booking.getStatus()).requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build())
@@ -60,11 +60,12 @@ public class BookingServiceImpl implements BookingService{
 				.build();
 	}
 
-//	@Override
-//	public List<BookingDTO> findByLodgingId(Long roomNo) {
-//		
-//		return null;
-//	}
+	@Override
+	public PageResponseDTO<BookingDTO> findByRoomId(Long hostNo,PageRequestDTO pageRequestDTO) {
+		//userNo랑 Lodging의 host가 같은 조건으로 숙소를 찾고, 그 숙소에 포함된 roomNo에 따라 불러올 리스트를 정한다.
+		//select * from booking where roomNo in (select roomNo from Room where lodgingNo in (select lodgingNo from Lodging where hostNo = :userNo))
+		return null;
+	}
 
 	@Override
 	public void delete(Long bookingNo) {
@@ -72,6 +73,7 @@ public class BookingServiceImpl implements BookingService{
 		Booking booking = result.orElseThrow();
 		booking.cancel();
 		repository.save(booking);
+		//환불처리로직도 추가해야함.
 	}
 
 }

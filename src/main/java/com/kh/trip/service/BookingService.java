@@ -1,17 +1,16 @@
 package com.kh.trip.service;
 
-import java.util.List;
-
 import com.kh.trip.dto.BookingDTO;
 import com.kh.trip.dto.PageRequestDTO;
+import com.kh.trip.dto.PageResponseDTO;
 
 public interface BookingService {
 
 	Long save(BookingDTO bookingDTO);
 
-	PageResponseDTO<BookingDTO> findByUserId(Long userNo, PageRequestDTO pageRequestDTO);
+	PageResponseDTO<BookingDTO> findByUserId(Long userNo,PageRequestDTO pageRequestDTO);
 
-//	List<BookingDTO> findByLodgingId(Long roomNo);
+	PageResponseDTO<BookingDTO> findByRoomId(Long hostNo,PageRequestDTO pageRequestDTO);
 
 	void delete(Long bookingNo);
 

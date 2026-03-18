@@ -3,6 +3,7 @@ package com.kh.trip.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,19 +39,16 @@ public class BookingController {
 		return Map.of("result",bno);
 	}
 	
-	@GetMapping("/userlist")
-	public PageResponseDTO<BookingDTO> findByUserId(@AuthenticationPrincipal AuthUserPrincipal principal,PageRequestDTO pageRequestDTO) {
-		log.info("findByUserId() = ");
-		if (principal == null) {
-	        throw new RuntimeException("인증 정보가 없습니다. 다시 로그인해 주세요.");
-	    }
-		return service.findByUserId(principal.getUserNo(),pageRequestDTO);
+	@GetMapping("/{uno}")
+	public PageResponseDTO<BookingDTO> findByUserId(@PathVariable(name = "uno") Long userNo,PageRequestDTO pageRequestDTO) {
+		log.info("findByUserId() userNo= " + userNo);
+		return service.findByUserId(userNo, pageRequestDTO);
 	}
 	
-	@GetMapping("/lodginglist")
-	public List<BookingDTO> findByLodgingId(@RequestBody BookingDTO bookingDTO) {
-		log.info("findByLodgingId() = " + bookingDTO);
-		return null;
+	@GetMapping("/{hno}")
+	public PageResponseDTO<BookingDTO> findByRoomId(@PathVariable(name = "hno") Long hostNo,PageRequestDTO pageRequestDTO) {
+		log.info("findByLodgingId() lodgingNo= " + hostNo);
+		return service.findByRoomId(hostNo, pageRequestDTO);
 	}
 	
 	@DeleteMapping("/{bno}")

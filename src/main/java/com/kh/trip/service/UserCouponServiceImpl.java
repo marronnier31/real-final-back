@@ -35,6 +35,12 @@ public class UserCouponServiceImpl implements UserCouponService{
 	
 	@Override
 	public Long save(UserCouponDTO userCouponDTO) {
+		boolean checkUserCoupon =repository.existenceCheck(userCouponDTO.getUserNo(), userCouponDTO.getCouponNo());
+		
+		if(checkUserCoupon) {
+			throw new IllegalStateException("이미 보유하고 계신 쿠폰번호입니다.");
+		}
+		
 		User user = userRepository.findById(userCouponDTO.getUserNo())
 				.orElseThrow(() -> new IllegalAccessError("존재하지 않는 관리자 번호입니다."));
 		

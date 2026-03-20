@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.kh.trip.domain.enums.BookingStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -101,13 +103,6 @@ public class Booking {
 	    if (checkInDate.isBefore(LocalDateTime.now())) {
 	        throw new IllegalStateException("과거 날짜로는 예약할 수 없습니다.");
 	    }
-	}
-	
-	public enum BookingStatus {
-		PENDING, // 예약대기
-		CONFIRMED, // 예약승인
-		CANCELED, // 취소
-		COMPLETED  // 숙박완료
 	}
 	
 	public void cancel() {

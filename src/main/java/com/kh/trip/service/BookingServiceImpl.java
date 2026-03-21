@@ -12,12 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.trip.domain.Booking;
+import com.kh.trip.domain.Room;
 import com.kh.trip.domain.User;
 import com.kh.trip.domain.UserCoupon;
 import com.kh.trip.dto.BookingDTO;
 import com.kh.trip.dto.PageRequestDTO;
 import com.kh.trip.dto.PageResponseDTO;
 import com.kh.trip.repository.BookingRepository;
+import com.kh.trip.repository.RoomRepository;
 import com.kh.trip.repository.UserCouponRepository;
 import com.kh.trip.repository.UserRepository;
 
@@ -30,14 +32,16 @@ public class BookingServiceImpl implements BookingService{
 	private final BookingRepository repository;
 	private final UserCouponRepository userCouponRepository;
 	private final UserRepository userRepository;
+	private final RoomRepository roomRepository;
 	
 	@Override
 	public Long save(BookingDTO bookingDTO) {
 		User user = userRepository.findById(bookingDTO.getUserNo()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 정보입니다.")); 
 		UserCoupon userCoupon = userCouponRepository.findById(bookingDTO.getUserCouponNo()).orElseThrow(() -> new IllegalArgumentException("회원이 갖고 있지 않는 쿠폰번호입니다."));
+		Room room = roomRepository.findById(bookingDTO.getRoomNo()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 객실 정보입니다."));
 		
 		Booking booking = Booking.builder().bookingNo(bookingDTO.getBookingNo()).user(user).userCoupon(userCoupon)
-				.checkInDate(bookingDTO.getCheckInDate()).checkOutDate(bookingDTO.getCheckOutDate())
+				.checkInDate(bookingDTO.getCheckInDate()).checkOutDate(bookingDTO.getCheckOutDate()).room(room)
 				.guestCount(bookingDTO.getGuestCount()).pricePerNight(bookingDTO.getPricePerNight()).totalPrice(bookingDTO.getTotalPrice())
 				.regDate(bookingDTO.getRegDate()).build();
 		

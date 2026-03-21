@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class BookingDTO {
 	private Long bookingNo;
 	private Long userNo;
-	//private Long roomNo;
+	private Long roomNo;
 	private Long userCouponNo;
 	private LocalDateTime checkInDate;
 	private LocalDateTime checkOutDate;

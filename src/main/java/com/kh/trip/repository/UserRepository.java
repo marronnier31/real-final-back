@@ -1,5 +1,6 @@
 package com.kh.trip.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	// 이메일 중복 여부를 확인한다.
 	boolean existsByEmail(String email);
+
+	// 활성/비활성 계정 조회
+	List<User> findByEnabled(String enabled);
 
 }

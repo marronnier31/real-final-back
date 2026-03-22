@@ -64,21 +64,35 @@ public class UserCoupon {
 	}
 	
 	public CouponStatus determineFinalStatus() {
-		// 1. 이미 사용했다면 무조건 USED
-		if (this.status.equals(CouponStatus.USED) || this.usedAt != null) {
-			return CouponStatus.USED;
-		}
+	    // 이미 사용 기록(날짜)이 있다면 USED
+	    if (this.usedAt != null) {
+	        this.status = CouponStatus.USED;
+	        return this.status; 
+	    }
+	    
+	    // 이미 USED 상태라면 그대로 유지(Enum == 비교 사용)
+	    if (this.status == CouponStatus.USED) {
+	        return this.status;
+	    }
 
-		// 2. 사용 전이라면 원본 쿠폰(Master)의 상태를 따라감
-		return this.coupon.getStatus();
+	    // 기간 및 원본 쿠폰 상태 확인 로직
+	    LocalDateTime now = LocalDateTime.now();
+	    if (this.coupon != null && this.coupon.getEndDate().isBefore(now)) {
+	        this.status = CouponStatus.EXPIRED;
+	    } else if (this.coupon != null && this.coupon.getStatus() == CouponStatus.INACTIVE) {
+	        this.status = CouponStatus.INACTIVE;
+	    } else {
+	    	//기본값설정
+	        this.status = CouponStatus.ACTIVE;
+	    }
+	    // 최종 결정된 상태
+	    return this.status; 
 	}
-
+	
 	public void restore() {
-		// 예약취소되면 상태 다시 활성화
-		this.status = CouponStatus.ACTIVE;
 		// 사용 일시 초기화
 		this.usedAt = null; 
-		// 원본 쿠폰의 상테 따라감.
+		// 원본 쿠폰의 상태 따라감.
 		determineFinalStatus();
 	}
 }

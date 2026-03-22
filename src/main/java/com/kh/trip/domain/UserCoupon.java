@@ -1,5 +1,4 @@
 package com.kh.trip.domain;
-
 import java.time.LocalDateTime;
 
 import com.kh.trip.domain.enums.CouponStatus;
@@ -56,6 +55,14 @@ public class UserCoupon {
 	@Builder.Default
 	private CouponStatus status = CouponStatus.ACTIVE; // active,expired, used
 
+	public void changeStatus(CouponStatus status) {
+		this.status = status;
+	}
+	
+	public void changeUsedAt(LocalDateTime usedAt) {
+		this.usedAt = usedAt;
+	}
+	
 	public CouponStatus determineFinalStatus() {
 		// 1. 이미 사용했다면 무조건 USED
 		if (this.status.equals(CouponStatus.USED) || this.usedAt != null) {
@@ -67,13 +74,11 @@ public class UserCoupon {
 	}
 
 	public void restore() {
-		// 이미 사용 가능 상태라면 복구할 필요가 없음 (방어 코드)
-		if (this.status == CouponStatus.ACTIVE) {
-			return;
-		}
-
-		// 사용 완료된 쿠폰만 복구 가능하게 제한을 둘 수도 있습니다.
+		// 예약취소되면 상태 다시 활성화
 		this.status = CouponStatus.ACTIVE;
-		this.usedAt = null; // 사용 일시 초기화
+		// 사용 일시 초기화
+		this.usedAt = null; 
+		// 원본 쿠폰의 상테 따라감.
+		determineFinalStatus();
 	}
 }

@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.kh.trip.domain.User;
 import com.kh.trip.domain.UserAuthProvider;
@@ -83,12 +85,12 @@ public class AuthServiceImpl implements AuthService {
 
 		// 이미 사용 중인 loginId면 회원가입 불가
 		if (userAuthProviderRepository.existsByLoginId(request.getLoginId())) {
-			throw new RuntimeException("LoginId already exists");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다.");
 		}
 
 		// 이미 사용 중인 email이면 회원가입 불가
 		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new RuntimeException("Email already exists");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다.");
 		}
 
 		// USERS 테이블에 저장할 회원 기본정보 생성

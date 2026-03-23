@@ -57,25 +57,32 @@ public class WishListServiceImpl implements WishListService {
 	@Override
 	@Transactional
 	public Long save(WishListDTO wishListDTO) {
-		log.info("..............");
-		
-		User user = userRepository.findById(wishListDTO.getUserNo()).orElseThrow(()->new IllegalArgumentException("존재하지 않는 사용자 입니다"));
-		Lodging lodging = lodgingRepository.findById(wishListDTO.getLodgingNo()).orElseThrow(()->new IllegalArgumentException("존재하지 않는 숙소 입니다"));
-		// [추가] 2. 중복 검사 (방어 코드)
-	    // 사용자(user)와 숙소(lodging)가 모두 일치하는 데이터가 있는지 확인
-	    boolean isExist = wishListRepository.existsByUserAndLodging(user, lodging);
+	    log.info("WishList Toggle Start.........."); //toggle = 스위치
 	    
-	    if (isExist) {
-	        // 이미 존재한다면 예외를 던지거나, 기존의 PK를 반환하거나 선택할 수 있습니다.
-	        throw new IllegalStateException("이미 위시리스트에 추가된 숙소입니다.");
+	    //사용자/숙소가 진짜 있는지 확인 (기존 코드 유지)
+	    User user = userRepository.findById(wishListDTO.getUserNo())
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+	    Lodging lodging = lodgingRepository.findById(wishListDTO.getLodgingNo())
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 숙소 입니다"));
+	    
+	    //[추가] "이미 찜했는지" DB에서 찾아보기
+	    java.util.Optional<WishList> found = wishListRepository.findByUserAndLodging(user, lodging);
+	    
+	    //상황에 따라 다르게 행동하기 (If-Else)
+	    if (found.isPresent()) {
+	        wishListRepository.delete(found.get());
+	        log.info(">>>> 이미 찜한 상태라 삭제(취소) 처리함");
+	        return 0L; // "삭제됨"을 알리는 신호
+	    } else {
+	        WishList wishList = WishList.builder()
+	                .user(user)
+	                .lodging(lodging)
+	                .build();
+	        
+	        WishList savedwishList = wishListRepository.save(wishList);
+	        log.info(">>>> 찜이 안 된 상태라 새롭게 저장함");
+	        return savedwishList.getWishListNo(); // "저장됨"을 알리는 신호
 	    }
-		WishList wishList = WishList.builder()
-			    .user(user)       // .user(user) 대신 .userNo(user)로 시도
-			    .lodging(lodging) // .lodging(lodging) 대신 .lodgingNo(lodging)로 시도
-			    .build();
-		
-		WishList savedwishList = wishListRepository.save(wishList);
-		return savedwishList.getWishListNo();
 	}
 	//delete
 	@Override

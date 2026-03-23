@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.kh.trip.domain.Lodging;
+import com.kh.trip.domain.User;
 import com.kh.trip.domain.WishList;
 
 @Repository
@@ -15,4 +17,6 @@ public interface WishListRepository extends JpaRepository<WishList, Long> {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	boolean existsByUserAndLodging(User user, Lodging lodging);
 }

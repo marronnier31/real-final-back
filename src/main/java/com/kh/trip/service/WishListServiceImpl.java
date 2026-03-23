@@ -58,8 +58,17 @@ public class WishListServiceImpl implements WishListService {
 	@Transactional
 	public Long save(WishListDTO wishListDTO) {
 		log.info("..............");
+		
 		User user = userRepository.findById(wishListDTO.getUserNo()).orElseThrow(()->new IllegalArgumentException("존재하지 않는 사용자 입니다"));
 		Lodging lodging = lodgingRepository.findById(wishListDTO.getLodgingNo()).orElseThrow(()->new IllegalArgumentException("존재하지 않는 숙소 입니다"));
+		// [추가] 2. 중복 검사 (방어 코드)
+	    // 사용자(user)와 숙소(lodging)가 모두 일치하는 데이터가 있는지 확인
+	    boolean isExist = wishListRepository.existsByUserAndLodging(user, lodging);
+	    
+	    if (isExist) {
+	        // 이미 존재한다면 예외를 던지거나, 기존의 PK를 반환하거나 선택할 수 있습니다.
+	        throw new IllegalStateException("이미 위시리스트에 추가된 숙소입니다.");
+	    }
 		WishList wishList = WishList.builder()
 			    .user(user)       // .user(user) 대신 .userNo(user)로 시도
 			    .lodging(lodging) // .lodging(lodging) 대신 .lodgingNo(lodging)로 시도

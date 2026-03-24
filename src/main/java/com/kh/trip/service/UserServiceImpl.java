@@ -76,9 +76,16 @@ public class UserServiceImpl implements UserService {
 		if (!type.equals("name") && !type.equals("email") && !type.equals("all")) {
 			type = "all";
 		}
+
 		String keyword = request.getKeyword() == null ? "" : request.getKeyword().trim();
 
-		Page<User> result = userRepository.searchUsers(type, keyword, pageable);
+		// 0(탈퇴), 1(활성), all(전체)
+		String enabled = request.getEnabled() == null ? "all" : request.getEnabled().trim().toLowerCase();
+		if (!enabled.equals("0") && !enabled.equals("1") && !enabled.equals("all")) {
+			enabled = "all";
+		}
+
+		Page<User> result = userRepository.searchUsers(type, keyword, enabled, pageable);
 
 		List<UserDTO> dtoList = result.stream().map(this::entityToDTO).toList();
 		return PageResponseDTO.<UserDTO>withAll().dtoList(dtoList).pageRequestDTO(request)

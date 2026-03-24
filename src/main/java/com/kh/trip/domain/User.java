@@ -49,11 +49,11 @@ public class User extends BaseTimeEntity {
 	private Long mileage = 0L;
 
 	@Builder.Default
-	@Column(name = "TOTAL_SPENT", nullable = false)
+	@Column(name = "TOTAL_SPENT", nullable = false, columnDefinition = "NUMBER(19,0) DEFAULT 0")
 	private Long totalSpent = 0L;
 
 	@Builder.Default
-	@Column(name = "STAY_COUNT", nullable = false)
+	@Column(name = "STAY_COUNT", nullable = false, columnDefinition = "NUMBER(19,0) DEFAULT 0")
 	private Long stayCount = 0L;
 
 	@Builder.Default

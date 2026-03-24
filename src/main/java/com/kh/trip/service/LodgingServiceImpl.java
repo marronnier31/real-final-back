@@ -106,7 +106,7 @@ public class LodgingServiceImpl implements LodgingService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<LodgingDTO> getAllLodgings() { 
-		return lodgingRepository.findAll()
+		return lodgingRepository.findByStatus(LodgingStatus.ACTIVE)
 				.stream()
 				.map(this::toLodgingDTO)  
 				.toList();

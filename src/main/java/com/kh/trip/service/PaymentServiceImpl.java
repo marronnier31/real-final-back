@@ -56,6 +56,24 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
+	public void complete(Long paymentNo) {
+		Payment payment = paymentRepository.findById(paymentNo)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 결제입니다." + paymentNo));
+
+		if (payment.getPaymentStatus() == PaymentStatus.PAID) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 완료된 결제입니다." + paymentNo);
+		}
+		if (payment.getPaymentStatus() == PaymentStatus.CANCELED) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "취소된 결제는 완료 처리할 수 없습니다." + paymentNo);
+		}
+
+		payment.changePaymentStatus(PaymentStatus.PAID);
+		payment.changeApprovedAt(LocalDateTime.now());
+
+		paymentRepository.save(payment);
+	}
+
+	@Override
 	public void cancel(Long paymentNo) {
 		Payment payment = paymentRepository.findById(paymentNo).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 결제입니다. paymentNo=" + paymentNo));
@@ -87,8 +105,7 @@ public class PaymentServiceImpl implements PaymentService {
 		String orderName = booking.getRoom().getLodgingNo() + "예약";
 
 		return Payment.builder().booking(booking).paymentId(paymentDTO.getPaymentId()).storeId(paymentDTO.getStoreId())
-				.channelKey(paymentDTO.getChannelKey()).orderName(orderName)
-				.paymentAmount(paymentDTO.getPaymentAmount())
+				.channelKey(paymentDTO.getChannelKey()).orderName(orderName).paymentAmount(booking.getTotalPrice())
 				.currency(paymentDTO.getCurrency() != null ? paymentDTO.getCurrency() : "KRW")
 				.payMethod(parsePayMethod(paymentDTO.getPayMethod())).pgProvider(paymentDTO.getPgProvider())
 				.paymentStatus(PaymentStatus.READY).approvedAt(null).canceledAt(null).refundAmount(0L).failReason(null)
@@ -117,15 +134,4 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 	}
 
-	private PaymentStatus parsePaymentStatus(String paymentStatus) {
-		if (paymentStatus == null) {
-			return PaymentStatus.READY;
-		}
-
-		try {
-			return PaymentStatus.valueOf(paymentStatus);
-		} catch (IllegalArgumentException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 결제 상태값입니다. paymentStatus=" + paymentStatus);
-		}
-	}
 }

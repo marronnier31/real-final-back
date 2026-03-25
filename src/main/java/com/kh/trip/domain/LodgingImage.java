@@ -4,9 +4,12 @@ import com.kh.trip.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -32,13 +35,23 @@ public class LodgingImage extends BaseTimeEntity {
 	@Column(name = "IMAGE_NO")
 	private Long imageNo;
 
-	@Column(name = "LODGING_NO", nullable = false) // 숙소 번호 FK
+	@Column(name = "LODGING_NO", nullable = false, insertable = false, updatable = false) // 숙소 번호 FK
 	private Long lodgingNo;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "LODGING_NO", nullable = false)
+	private Lodging lodging;  // DB 저장 담당
 
-	@Column(name = "IMAGE_URL", nullable = false, length = 300) // 이미지 경로
-	private String imageUrl;
+	@Column(name = "FILE_NAME", nullable = false, length = 300) // 이미지 경로
+	private String fileName;
 
 	@Column(name = "SORT_ORDER", nullable = false) // 정렬 순서
 	private Integer sortOrder;
-
+	
+	public void changeOrd(Integer sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+	public void changeLodging(Lodging lodging) {
+		this.lodging = lodging;
+	}
 }

@@ -1,9 +1,13 @@
 package com.kh.trip.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.kh.trip.domain.common.BaseTimeEntity;
 import com.kh.trip.domain.enums.LodgingStatus;
 import com.kh.trip.domain.enums.LodgingType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +15,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -108,6 +113,10 @@ public class Lodging extends BaseTimeEntity {
 	@Column(name = "STATUS", nullable = false, length = 20)
 	private LodgingStatus status = LodgingStatus.ACTIVE;
 
+	@OneToMany(mappedBy = "lodging", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<LodgingImage> imageList = new ArrayList<>();
+	
 	// 상태 변경
 	public void changeStatus(LodgingStatus status) {
 		this.status = status;
@@ -132,5 +141,19 @@ public class Lodging extends BaseTimeEntity {
 	public void changeCheckOutTime(String checkOutTime) {
 		this.checkOutTime = checkOutTime;
 	}
+	public void addImage(LodgingImage image) {
+		// 이미지 추가시 순서(ord) 자동 설정 (0, 1, 2, ...)
+		image.changeOrd(this.imageList.size());
+		image.changeLodging(this);
+		imageList.add(image);
+	}
 
+	public void addImageString(String fileName) {
+		LodgingImage lodgingImage = LodgingImage.builder().fileName(fileName).build();
+		addImage(lodgingImage);
+	}
+
+	public void clearList() {
+		this.imageList.clear();
+	}
 }

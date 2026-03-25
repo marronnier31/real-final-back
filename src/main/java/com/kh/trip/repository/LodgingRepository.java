@@ -1,8 +1,12 @@
 package com.kh.trip.repository;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.kh.trip.domain.Lodging;
 import com.kh.trip.domain.enums.LodgingStatus;
@@ -31,4 +35,10 @@ public interface LodgingRepository extends JpaRepository<Lodging, Long> {
 	 */
 	List<Lodging> findByStatus(LodgingStatus status);
 
+	@EntityGraph(attributePaths = "imageList")
+	@Query("select l from Lodging l where l.lodgingNo = :lodgingNo")
+	Optional<Lodging> selectOne(@Param("lodgingNo") Long lodgingNo);
+
+	@Query("select l, li from Lodging l left join l.imageList li on li.sortOrder = 0 where l.status = LodgingStatus.ACTIVE")
+	List<Object[]> selectList();
 }

@@ -3,7 +3,6 @@ package com.kh.trip.service;
 import java.util.List;
 
 import com.kh.trip.dto.LodgingDTO;
-import com.kh.trip.dto.LodgingDetailDTO;
 
 public interface LodgingService {
 
@@ -29,6 +28,6 @@ public interface LodgingService {
 	void deleteLodging(Long lodgingNo);
 	
 	//숙소 상세조회 
-	LodgingDetailDTO getLodgingDetail(Long lodgingNo);
+	LodgingDTO getLodgingDetail(Long lodgingNo);
 
 }

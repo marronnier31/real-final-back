@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.trip.dto.ReviewCreateDTO;
+import com.kh.trip.dto.ReviewStatsDTO;
 import com.kh.trip.dto.ReviewSummaryDTO;
 import com.kh.trip.dto.ReviewUpdateDTO;
 import com.kh.trip.security.AuthUserPrincipal;
@@ -23,8 +24,7 @@ import com.kh.trip.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 리뷰 컨트롤러
- * 리뷰 관련 요청을 처리하는 REST API 컨트롤러
+ * 리뷰 컨트롤러 리뷰 관련 요청을 처리하는 REST API 컨트롤러
  */
 @RestController
 @RequestMapping("/api/reviews")
@@ -77,6 +77,12 @@ public class ReviewController {
 	@GetMapping("/lodgings/{lodgingNo}")
 	public List<ReviewSummaryDTO> getReviewsByLodging(@PathVariable Long lodgingNo) {
 		return reviewService.getReviewsByLodging(lodgingNo);
+	}
+
+	// 숙소별 리뷰 통계 조회
+	@GetMapping("/lodgings/{lodgingNo}/stats")
+	public ReviewStatsDTO getReviewStatsByLodging(@PathVariable Long lodgingNo) {
+		return reviewService.getReviewStatsByLodging(lodgingNo);
 	}
 
 }

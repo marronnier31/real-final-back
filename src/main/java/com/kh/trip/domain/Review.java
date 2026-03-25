@@ -20,7 +20,7 @@ import lombok.Setter;
 @Table(name = "REVIEWS")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 protected
+@NoArgsConstructor(access = AccessLevel.PROTECTED) 
 @AllArgsConstructor
 @Builder
 public class Review extends BaseTimeEntity {

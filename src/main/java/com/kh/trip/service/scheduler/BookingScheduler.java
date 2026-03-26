@@ -19,7 +19,7 @@ public class BookingScheduler {
 	@Transactional
 	public void updateBookingStatus() {
 		LocalDateTime today = LocalDateTime.now();
-		bookingRepository.updateStatusForCheckout(today,BookingStatus.COMPLETED);
+		bookingRepository.updateStatusForCheckout(today,BookingStatus.COMPLETED, BookingStatus.CONFIRMED);
 	}
 	
 }

@@ -33,7 +33,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	Optional<Booking> findDetailByBookingNo(@Param("bookingNo") Long bookingNo);
 
 	@Modifying
-	@Query("update Booking b set b.status = :completed where b.checkOutDate <= :today and b.status = com.kh.trip.domain.enums.BookingStatus.CONFIRMED")
-	void updateStatusForCheckout(@Param("today") LocalDateTime today, @Param("completed") BookingStatus completed);
+	@Query("update Booking b set b.status = :afterStatus where b.checkOutDate <= :today and b.status = :beforeStatus")
+	void updateStatusForCheckout(@Param("today") LocalDateTime today, @Param("afterStatus") BookingStatus after, @Param("beforeStatus") BookingStatus before);
 
 }

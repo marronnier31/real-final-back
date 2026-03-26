@@ -55,10 +55,10 @@ public class HostProfileServiceImpl implements HostProfileService {
 	public void approve(Long hostNo, Long adminUserNo) {
 		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필 입니다."));
-
-		if (hostProfile.getApprovalStatus() == HostApprovalStatus.APPROVED) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 승인된 호스트 프로필 입니다.");
+		if (hostProfile.getApprovalStatus() != HostApprovalStatus.PENDING) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "대기 상태의 호스트 프로필만 승인할 수 있습니다.");
 		}
+
 		hostProfile.approve(adminUserNo);
 		hostProfileRepository.save(hostProfile);
 	}
@@ -67,11 +67,43 @@ public class HostProfileServiceImpl implements HostProfileService {
 	public void reject(Long hostNo, Long adminUserNo, String rejectReason) {
 		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필 입니다."));
-		if (hostProfile.getApprovalStatus() == HostApprovalStatus.APPROVED) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 승인된 호스트 프로필은 반려할 수 없습니다.");
+
+		if (hostProfile.getApprovalStatus() != HostApprovalStatus.PENDING) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "대기 상태의 호스트 프로필만 반려할 수 있습니다.");
 		}
 		hostProfile.reject(adminUserNo, rejectReason);
 		hostProfileRepository.save(hostProfile);
+	}
+
+	@Override
+	public void update(Long hostNo, HostProfileDTO hostProfileDTO) {
+		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필 입니다."));
+		if (hostProfile.getApprovalStatus() != HostApprovalStatus.REJECTED) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "반려된 호스트 프로필만 수정 후 재신청할 수 있습니다.");
+		}
+		if (!hostProfile.getBusinessNumber().equals(hostProfileDTO.getBusinessNumber())
+				&& hostProfileRepository.existsByBusinessNumber(hostProfileDTO.getBusinessNumber())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 사업자등록번호입니다.");
+		}
+		hostProfile.updateForResubmit(hostProfileDTO.getBusinessName(), hostProfileDTO.getBusinessNumber(),
+				hostProfileDTO.getOwnerName());
+		hostProfileRepository.save(hostProfile);
+	}
+
+	@Override
+	public void delete(Long hostNo) {
+		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필 입니다."));
+		if (hostProfile.getEnabled().equals("0")) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 비활성화 된 사업자정보입니다.");
+		}
+		hostProfile.changeEnabled("0");
+		hostProfileRepository.save(hostProfile);
+	}
+
+	@Override
+	public void restore(Long hostNo) {
 	}
 
 	private HostProfile dtoToEntity(HostProfileDTO hostProfileDTO) {
@@ -87,7 +119,7 @@ public class HostProfileServiceImpl implements HostProfileService {
 		return HostProfileDTO.builder().hostNo(hostProfile.getHostNo()).userNo(hostProfile.getUser().getUserNo())
 				.businessName(hostProfile.getBusinessName()).businessNumber(hostProfile.getBusinessNumber())
 				.ownerName(hostProfile.getOwnerName()).approvalStatus(hostProfile.getApprovalStatus().name())
-				.rejectReason(hostProfile.getRejectReason()).build();
+				.rejectReason(hostProfile.getRejectReason()).enabled(hostProfile.getEnabled()).build();
 	}
 
 }

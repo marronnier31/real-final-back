@@ -9,10 +9,16 @@ public interface HostProfileService {
 	Long register(HostProfileDTO hostProfileDTO);
 
 	List<HostProfileDTO> getList();
-	
+
 	HostProfileDTO get(Long hostNo);
-	
+
 	void approve(Long hostNo, Long adminUserNo);
-	
+
 	void reject(Long hostNo, Long adminUserNo, String rejectReason);
+
+	void update(Long hostNo, HostProfileDTO hostProfileDTO);
+
+	void delete(Long hostNo);
+
+	void restore(Long hostNo);
 }

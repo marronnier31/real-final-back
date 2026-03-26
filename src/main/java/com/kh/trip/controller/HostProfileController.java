@@ -52,4 +52,10 @@ public class HostProfileController {
 		hostProfileService.reject(hostNo, authUser.getUserNo(), hostProfileDTO.getRejectReason());
 		return Map.of("result", "SUCCESS");
 	}
+
+	@PatchMapping("/{hostNo}/resubmit")
+	public Map<String, String> resubmit(@PathVariable Long hostNo) {
+		hostProfileService.resubmit(hostNo);
+		return Map.of("result", "SUCCESS");
+	}
 }

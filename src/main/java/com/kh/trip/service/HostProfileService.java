@@ -15,4 +15,6 @@ public interface HostProfileService {
 	void approve(Long hostNo, Long adminUserNo);
 	
 	void reject(Long hostNo, Long adminUserNo, String rejectReason);
+	
+	void resubmit(Long hostNo);
 }

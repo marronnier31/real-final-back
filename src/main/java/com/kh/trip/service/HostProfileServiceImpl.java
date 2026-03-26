@@ -55,10 +55,10 @@ public class HostProfileServiceImpl implements HostProfileService {
 	public void approve(Long hostNo, Long adminUserNo) {
 		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필 입니다."));
-
-		if (hostProfile.getApprovalStatus() == HostApprovalStatus.APPROVED) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 승인된 호스트 프로필 입니다.");
+		if (hostProfile.getApprovalStatus() != HostApprovalStatus.PENDING) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "대기 상태의 호스트 프로필만 승인할 수 있습니다.");
 		}
+
 		hostProfile.approve(adminUserNo);
 		hostProfileRepository.save(hostProfile);
 	}
@@ -67,10 +67,22 @@ public class HostProfileServiceImpl implements HostProfileService {
 	public void reject(Long hostNo, Long adminUserNo, String rejectReason) {
 		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필 입니다."));
-		if (hostProfile.getApprovalStatus() == HostApprovalStatus.APPROVED) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 승인된 호스트 프로필은 반려할 수 없습니다.");
+
+		if (hostProfile.getApprovalStatus() != HostApprovalStatus.PENDING) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "대기 상태의 호스트 프로필만 반려할 수 있습니다.");
 		}
 		hostProfile.reject(adminUserNo, rejectReason);
+		hostProfileRepository.save(hostProfile);
+	}
+
+	@Override
+	public void resubmit(Long hostNo) {
+		HostProfile hostProfile = hostProfileRepository.findById(hostNo)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 호스트 프로필입니다."));
+		if (hostProfile.getApprovalStatus() != HostApprovalStatus.REJECTED) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "반려된 호스트 프로필만 재신청할 수 있습니다.");
+		}
+		hostProfile.resubmit();
 		hostProfileRepository.save(hostProfile);
 	}
 

@@ -76,4 +76,12 @@ public class HostProfile extends BaseTimeEntity {
 		this.approvedAt = LocalDateTime.now();
 		this.rejectReason = rejectReason;
 	}
+
+	public void resubmit() {
+		this.approvalStatus = HostApprovalStatus.PENDING;
+		this.approvedBy = null;
+		this.approvedAt = null;
+		this.rejectReason = null;
+
+	}
 }

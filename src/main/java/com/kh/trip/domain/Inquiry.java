@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "INQUIRYS")
+@Table(name = "INQUIRY")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,10 +42,10 @@ public class Inquiry extends BaseTimeEntity {
 	@Column(name = "INQUIRY_TYPE", nullable = false)
 	private InquiryType inquiryType;
 	
-	@Column(name = "TITLE", nullable = false, length = 100)
+	@Column(name = "TITLE", nullable = false, length = 300)
 	private String title;
 	
-	@Column(name = "CONTENT", nullable = false, length = 500)
+	@Column(name = "CONTENT", nullable = false, length = 3000)
 	private String content;
 	
 	@Builder.Default
@@ -58,6 +58,10 @@ public class Inquiry extends BaseTimeEntity {
 	
 	public void changeContent(String content) {
 		this.content = content;
+	}
+	
+	public void changeStatus(InquiryStatus status) {
+		this.status = status;
 	}
 	
 }

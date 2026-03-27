@@ -126,7 +126,7 @@ public class MypageServiceImpl implements MypageService {
 	@Transactional
 	public MypageDTO.BookingCreatedResponse createBooking(Long userNo, MypageDTO.BookingCreateRequest request) {
 		User user = getUser(userNo);
-		Room room = roomRepository.findById(request.getRoomNo())
+		Room room = roomRepository.findByRoomNo(request.getRoomNo())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "객실을 찾을 수 없습니다."));
 
 		validateBookingRequest(request, room);

@@ -15,8 +15,7 @@ import com.kh.trip.domain.WishList;
 
 public interface WishListRepository extends JpaRepository<WishList, Long> {
 	Optional<WishList> findByUserAndLodging(User user, Lodging lodging);
-
 	@Query("select w from WishList w where w.user.userNo = :userNo")
-	Page<WishList> findByUserId(@Param("userNo") Long userNo, Pageable pageable);
-
+	Page<WishList> findByUserId(@Param("userNo")Long userNo, Pageable pageable);
+	
 }

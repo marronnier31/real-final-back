@@ -235,6 +235,9 @@ public class MypageDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class PaymentSummary {
+		private long paymentCount;
+		private long paidAmountTotal;
+		private long refundAmountTotal;
 		private long paidCount;
 		private long refundedCount;
 		private String recentPaidAmount;

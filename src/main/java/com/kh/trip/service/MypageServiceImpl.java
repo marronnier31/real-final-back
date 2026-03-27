@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +75,7 @@ public class MypageServiceImpl implements MypageService {
 		List<Booking> bookings = bookingRepository.findMypageBookings(userNo);
 		List<UserCoupon> coupons = userCouponRepository.findMypageCoupons(userNo);
 		List<Payment> payments = paymentRepository.findMypagePayments(userNo);
-		List<WishList> wishlists = wishListRepository.findMypageWishlist(userNo);
+		List<WishList> wishlists = loadWishlistRows(userNo);
 
 		return MypageDTO.HomeResponse.builder()
 				.profileSummary(toProfileSummary(user, userAuthProviderRepository.findByUserNo(userNo)))
@@ -237,6 +238,14 @@ public class MypageServiceImpl implements MypageService {
 
 		return MypageDTO.PaymentResponse.builder()
 				.summary(MypageDTO.PaymentSummary.builder()
+						.paymentCount(items.size())
+						.paidAmountTotal(items.stream()
+								.filter(item -> "PAID".equals(item.getStatus()))
+								.mapToLong(MypageDTO.PaymentItem::getPaymentAmount)
+								.sum())
+						.refundAmountTotal(items.stream()
+								.mapToLong(MypageDTO.PaymentItem::getRefundAmount)
+								.sum())
 						.paidCount(items.stream().filter(item -> "PAID".equals(item.getStatus())).count())
 						.refundedCount(items.stream().filter(item -> "REFUNDED".equals(item.getStatus())).count())
 						.recentPaidAmount(items.stream().filter(item -> "PAID".equals(item.getStatus())).map(MypageDTO.PaymentItem::getAmount).findFirst().orElse("-"))
@@ -249,7 +258,7 @@ public class MypageServiceImpl implements MypageService {
 	@Override
 	public MypageDTO.WishlistResponse getWishlist(Long userNo) {
 		return MypageDTO.WishlistResponse.builder()
-				.items(wishListRepository.findMypageWishlist(userNo).stream().map(this::toWishlistItem).toList())
+				.items(loadWishlistRows(userNo).stream().map(this::toWishlistItem).toList())
 				.build();
 	}
 
@@ -442,6 +451,12 @@ public class MypageServiceImpl implements MypageService {
 				.updatedAt(inquiry.getUpdDate() != null ? DATE_TIME_FORMAT.format(inquiry.getUpdDate()) : null)
 				.preview(inquiry.getContent())
 				.build();
+	}
+
+	private List<WishList> loadWishlistRows(Long userNo) {
+		return wishListRepository.findByUserId(userNo, Pageable.unpaged()).getContent().stream()
+				.sorted(Comparator.comparing(WishList::getRegDate, Comparator.nullsLast(Comparator.reverseOrder())))
+				.toList();
 	}
 
 	private boolean isUpcomingBooking(Booking booking) {

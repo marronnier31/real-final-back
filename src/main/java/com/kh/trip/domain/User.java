@@ -76,4 +76,11 @@ public class User extends BaseTimeEntity {
 		this.enabled = enabled;
 	}
 
+	public void addTotalSpent(Long totalSpent) {
+		this.totalSpent += totalSpent;
+	}
+
+	public void addStayCount(Long stayCount) {
+		this.stayCount += stayCount;
+	}
 }

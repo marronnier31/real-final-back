@@ -9,17 +9,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.trip.domain.enums.BookingStatus;
 import com.kh.trip.repository.BookingRepository;
+import com.kh.trip.service.BookingService;
 
 @Component
 public class BookingScheduler {
 	@Autowired
-	private BookingRepository bookingRepository;
+	private BookingRepository repository;
 	
-	@Scheduled(cron = "0 0 0 * * *")
+	@Scheduled(cron = "0 1 11 * * *")
 	@Transactional
 	public void updateBookingStatus() {
+		System.out.println("스케줄러 작동 중!");
 		LocalDateTime today = LocalDateTime.now();
-		bookingRepository.updateStatusForCheckout(today,BookingStatus.COMPLETED, BookingStatus.CONFIRMED);
+		repository.updateStatusForCheckout(today, BookingStatus.COMPLETED, BookingStatus.CONFIRMED);
+		
 	}
 	
 }

@@ -83,8 +83,8 @@ public class LodgingServiceImpl implements LodgingService {
 		}
 
 		// roomDTO가 없으면 빈 리스트 생성
-		List<Room> roomList = lodgingDTO.getRoomDTO() == null ? List.of()
-				: lodgingDTO.getRoomDTO().stream().map(this::toRoomEntity).collect(Collectors.toList());
+		List<Room> roomList = lodgingDTO.getRooms() == null ? List.of()
+				: lodgingDTO.getRooms().stream().map(this::toRoomEntity).collect(Collectors.toList());
 
 		// 숙소 먼저 저장해서 lodgingNo 생성
 		Lodging savedLodging = lodgingRepository.save(lodging);
@@ -263,9 +263,11 @@ public class LodgingServiceImpl implements LodgingService {
 
 		// 3. lodging entity를 dto로 변환
 		LodgingDTO lodgingDTO = toLodgingDTO(lodging);
-		List<RoomSummaryDTO> roomDTOs = rooms.stream().map(this::toRoomSummaryDTO).collect(Collectors.toList());
+		List<RoomSummaryDTO> roomDTOs = rooms.stream()
+				.map(this::toRoomSummaryDTO)
+				.collect(Collectors.toList());
 		// 4.lodgingDTO에 룸정보추가
-		lodgingDTO.setRoomDTO(roomDTOs);
+		lodgingDTO.setRooms(roomDTOs);
 		return lodgingDTO;
 	}
 

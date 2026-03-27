@@ -47,5 +47,5 @@ public class LodgingDTO {
 
 	// 상세조회 시 같이 내려줄 객실 목록
 	@Builder.Default
-	private List<RoomSummaryDTO> rooms = new ArrayList<>();
+	private List<RoomDTO> rooms = new ArrayList<>();
 }

@@ -49,11 +49,10 @@ public class CustomFileUtil {
 
 		// size() == 0 대신 isEmpty() 권장
 		if (files == null || files.isEmpty()) {
-			uploadNames.add("default.jpg"); 
+			uploadNames.add("default.jpg");
 			return uploadNames;
 		}
 
-		
 		for (MultipartFile multipartFile : files) {
 			String savedName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
 			Path savePath = Paths.get(uploadPath, savedName);
@@ -76,6 +75,41 @@ public class CustomFileUtil {
 			}
 		}
 		return uploadNames;
+	}
+
+	// 사용자가보내준 리스트파일들을 내장폴더에 중복되지않는 이름으로 변경해서 저장하고, 파일명을 리스트에 저장해서 리턴
+	public String saveFile(MultipartFile file) throws RuntimeException {
+		// 절대중복되지않는 파일명을 만들어서 저장리스트
+		String uploadName = null;
+
+		// size() == 0 대신 isEmpty() 권장
+		if (file == null || file.isEmpty()) {
+			uploadName = "default.jpg";
+			return uploadName;
+		}
+
+		MultipartFile multipartFile = file;
+		String savedName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
+		Path savePath = Paths.get(uploadPath, savedName);
+		try {
+			Files.copy(multipartFile.getInputStream(), savePath);
+			// 파일의 타입 kdj.jpg => jpg 타입파일
+			String contentType = multipartFile.getContentType();
+
+			// 썸네일 생성
+			// 타입을 체크하고, 진짜 이미지 파일인지 검토 (hwp. doc, ppt, txt) 필터링
+			if (contentType != null && contentType.startsWith("image")) {
+				// 썸네일파일명생성 : D:\ upload\s_sjfksdfjksdafjsak_kdj.jpg
+				Path thumbnailPath = Paths.get(uploadPath, "s_" + savedName);
+				// 원본파일을 가로폭(400),세로폭(400)변경을 해서 썸네일파일에 저장
+				Thumbnails.of(savePath.toFile()).size(400, 400).toFile(thumbnailPath.toFile());
+			}
+			uploadName = savedName;
+		} catch (IOException e) {
+			throw new RuntimeException("File save error: " + e.getMessage());
+		}
+		return uploadName;
+
 	}
 
 	// 브라우저에게 화며을 보여주는기능 담당함수
@@ -103,13 +137,13 @@ public class CustomFileUtil {
 		if (fileNames == null || fileNames.isEmpty()) {
 			return;
 		}
-		
+
 		fileNames.forEach(fileName -> {
 			// 썸네일이 있는지 확인하고 삭제
 			String thumbnailFileName = "s_" + fileName;
-			//썸네일이미지경로
+			// 썸네일이미지경로
 			Path thumbnailPath = Paths.get(uploadPath, thumbnailFileName);
-			//원본이미지경로
+			// 원본이미지경로
 			Path filePath = Paths.get(uploadPath, fileName);
 			try {
 				Files.deleteIfExists(filePath);
@@ -118,5 +152,24 @@ public class CustomFileUtil {
 				throw new RuntimeException(e.getMessage());
 			}
 		});
+	}
+
+	public void deleteFile(String fileName) {
+		if (fileName == null || fileName.isEmpty()) {
+			return;
+		}
+
+		// 썸네일이 있는지 확인하고 삭제
+		String thumbnailFileName = "s_" + fileName;
+		// 썸네일이미지경로
+		Path thumbnailPath = Paths.get(uploadPath, thumbnailFileName);
+		// 원본이미지경로
+		Path filePath = Paths.get(uploadPath, fileName);
+		try {
+			Files.deleteIfExists(filePath);
+			Files.deleteIfExists(thumbnailPath);
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage());
+		};
 	}
 }

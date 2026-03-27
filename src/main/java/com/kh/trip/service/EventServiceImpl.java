@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kh.trip.domain.Coupon;
 import com.kh.trip.domain.Event;
@@ -22,6 +23,7 @@ import com.kh.trip.repository.CouponRepository;
 import com.kh.trip.repository.EventCouponRepository;
 import com.kh.trip.repository.EventRepository;
 import com.kh.trip.repository.UserRepository;
+import com.kh.trip.util.CustomFileUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +44,7 @@ public class EventServiceImpl implements EventService {
 		Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
 				Sort.by("eventNo").descending());
 
-		Page<Event> result = eventRepository.findAll(pageable);
+		Page<Event> result = eventRepository.findAll(pageable, EventStatus.HIDDEN);
 
 		List<EventDTO> dtoList = result.getContent().stream().map(event -> {
 			return EventDTO.builder().eventNo(event.getEventNo()).title(event.getTitle()).content(event.getContent())
@@ -80,6 +82,7 @@ public class EventServiceImpl implements EventService {
 		log.info(".........");
 		User user = userRepository.findById(eventDTO.getAdminUserNo())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자 번호입니다."));
+		
 		Event event = Event.builder().title(eventDTO.getTitle()).content(eventDTO.getContent())
 				.thumbnailUrl(eventDTO.getThumbnailUrl()).startDate(eventDTO.getStartDate())
 				.endDate(eventDTO.getEndDate()).viewCount(0L).adminUserNo(user).status(EventStatus.DRAFT).build();
@@ -101,7 +104,6 @@ public class EventServiceImpl implements EventService {
 		}
 		;
 		return savedEvent.getEventNo();
-
 	}
 
 	// update
@@ -112,9 +114,9 @@ public class EventServiceImpl implements EventService {
 
 		event.changeTitle(eventDTO.getTitle());
 		event.changeContent(eventDTO.getContent());
-		event.changeThumbnailUrl(eventDTO.getThumbnailUrl());
 		event.changeStartDate(eventDTO.getStartDate());
 		event.changeEndDate(eventDTO.getEndDate());
+		event.changeThumbnailUrl(eventDTO.getThumbnailUrl());
 		log.info("DB 조회 시도 ID: " + eventDTO.getEventNo());
 		eventRepository.findAll().forEach(e -> log.info("DB에 있는 ID: " + e.getEventNo()));
 		eventRepository.save(event);
@@ -128,4 +130,5 @@ public class EventServiceImpl implements EventService {
 		event.changeStatus(EventStatus.HIDDEN);
 		eventRepository.save(event);
 	}
+	
 }

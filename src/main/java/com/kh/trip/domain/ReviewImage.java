@@ -1,17 +1,15 @@
 package com.kh.trip.domain;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
+import com.kh.trip.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType; 
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne; 
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -19,16 +17,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "REVIEW_IMAGES")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class ReviewImage {
+public class ReviewImage extends BaseTimeEntity{
 
 	@Id 
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_review_images") // 시퀀스 사용
@@ -51,7 +47,4 @@ public class ReviewImage {
 	@Column(name = "SORT_ORDER", nullable = false) // 정렬 순서
 	private Integer sortOrder; // 리뷰 이미지 순서
 
-	@CreationTimestamp // INSERT 시 현재 시간이 자동으로 들어감
-	@Column(name = "REG_DATE", updatable = false) // REG_DATE 컬럼과 매핑, 수정은 불가
-	private LocalDateTime regDate; // 등록일
 }

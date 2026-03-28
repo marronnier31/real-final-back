@@ -33,7 +33,7 @@ public class CouponServiceImpl implements CouponService {
 	@Override
 	public List<CouponDTO> findAll() {
 		List<Coupon> result = repository.findAll();
-		 return EntityToDTO(result);
+		return entityToDTO(result);
 	}
 
 	@Override
@@ -55,27 +55,28 @@ public class CouponServiceImpl implements CouponService {
 		coupon.changeStatus(CouponStatus.DELETE);
 		repository.save(coupon);
 	}
-	
-	public Coupon dtoToEntity(CouponDTO couponDTO) {
-		User user = userRepository.findById(couponDTO.getAdminUserNo())
-				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자 번호입니다."));
-		
-		CouponStatus status = CouponStatus.ACTIVE;
-		
-		if(couponDTO.getStartDate().isAfter(LocalDateTime.now())) status = CouponStatus.INACTIVE;
 
-		return Coupon.builder().user(user) 
-				.couponName(couponDTO.getCouponName()).discountType(couponDTO.getDiscountType())
-				.discountValue(couponDTO.getDiscountValue()).startDate(couponDTO.getStartDate())
-				.endDate(couponDTO.getEndDate()).status(status).build();
+	public Coupon dtoToEntity(CouponDTO couponDTO) {
+		User user = userRepository.findById(couponDTO.getAdminUser())
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자 번호입니다."));
+
+		CouponStatus status = CouponStatus.ACTIVE;
+
+		if (couponDTO.getStartDate().isAfter(LocalDateTime.now()))
+			status = CouponStatus.INACTIVE;
+
+		return Coupon.builder().user(user).couponName(couponDTO.getCouponName())
+				.discountType(couponDTO.getDiscountType()).discountValue(couponDTO.getDiscountValue())
+				.startDate(couponDTO.getStartDate()).endDate(couponDTO.getEndDate()).status(status).build();
 	}
-	
-	public List<CouponDTO> EntityToDTO(List<Coupon> result) {
-		return result.stream().map(coupon -> CouponDTO.builder().couponNo(coupon.getCouponNo())
-				.couponName(coupon.getCouponName()).adminUserNo(coupon.getUser().getUserNo())
-				.discountType(coupon.getDiscountType()).discountValue(coupon.getDiscountValue())
-				.startDate(coupon.getStartDate()).endDate(coupon.getEndDate())
-				.status(coupon.getStatus()).build()).collect(Collectors.toList());
+
+	public List<CouponDTO> entityToDTO(List<Coupon> result) {
+		return result.stream()
+				.map(coupon -> CouponDTO.builder().couponNo(coupon.getCouponNo()).couponName(coupon.getCouponName())
+						.adminUser(coupon.getUser().getUserNo()).discountType(coupon.getDiscountType())
+						.discountValue(coupon.getDiscountValue()).startDate(coupon.getStartDate())
+						.endDate(coupon.getEndDate()).status(coupon.getStatus()).build())
+				.collect(Collectors.toList());
 	}
-	
+
 }

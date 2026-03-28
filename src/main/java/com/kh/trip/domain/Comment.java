@@ -4,6 +4,7 @@ import com.kh.trip.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,42 +17,33 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(name = "COMMENTS")
 @Getter
-@ToString
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Comment extends BaseTimeEntity{
-	
+@Builder
+public class Comment extends BaseTimeEntity {
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "SEQ_COMMENT")
-	@SequenceGenerator(name = "SEQ_COMMENT",sequenceName = "SEQ_COMMENT",allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_comments")
+	@SequenceGenerator(name = "seq_comments", sequenceName = "SEQ_COMMENTS", allocationSize = 1)
 	@Column(name = "COMMENT_NO")
 	private Long commentNo;
-	
-	@ManyToOne // 외래키
-	@JoinColumn(name ="INQUIRY_NO",nullable = false)
+
+	@ManyToOne(fetch = FetchType.LAZY) // 외래키
+	@JoinColumn(name = "INQUIRY_NO", nullable = false)
 	private Inquiry inquiry;
-	
-	@ManyToOne // 외래키
+
+	@ManyToOne(fetch = FetchType.LAZY) // 외래키
 	@JoinColumn(name = "ADMIN_NO", nullable = false)
 	private User user;
-	
-	@Column(name = "CONTENT",nullable = false)
+
+	@Column(name = "CONTENT", nullable = false)
 	private String content;
-	
-	@Column(name = "STATUS", nullable = false)
-	private boolean status;
-	
-	
+
 	public void changeContent(String content) {
 		this.content = content;
-	}
-	public void changeStatus(boolean status) {
-		this.status = status;
 	}
 }

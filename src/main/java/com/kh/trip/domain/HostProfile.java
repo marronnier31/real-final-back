@@ -31,8 +31,8 @@ import lombok.NoArgsConstructor;
 public class HostProfile extends BaseTimeEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_host_profile")
-	@SequenceGenerator(name = "seq_host_profile", sequenceName = "SEQ_HOST_PROFILE", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_host_profiles")
+	@SequenceGenerator(name = "seq_host_profiles", sequenceName = "SEQ_HOST_PROFILES", allocationSize = 1)
 	@Column(name = "HOST_NO")
 	private Long hostNo;
 

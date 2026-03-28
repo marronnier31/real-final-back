@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "PAYMENT")
+@Table(name = "PAYMENTS")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -38,7 +39,7 @@ public class Payment extends BaseTimeEntity {
 	@Column(name = "PAYMENT_NO")
 	private Long paymentNo; // 결제 번호
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "BOOKING_NO", nullable = false)
 	private Booking booking; // 예약 번호
 
@@ -88,7 +89,7 @@ public class Payment extends BaseTimeEntity {
 	@Column(name = "RAW_RESPONSE")
 	private String rawResponse; // 결제 응답 원본 데이터
 
-	public void changePaymentStatus(com.kh.trip.domain.enums.PaymentStatus paymentStatus) {
+	public void changePaymentStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = paymentStatus;
 	}
 

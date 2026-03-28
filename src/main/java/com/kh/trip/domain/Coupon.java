@@ -26,19 +26,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(name = "COUPONS")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class Coupon extends BaseTimeEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_COUPONS")
-	@SequenceGenerator(name = "SEQ_COUPONS", sequenceName = "SEQ_COUPONS", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_coupons")
+	@SequenceGenerator(name = "seq_coupons", sequenceName = "SEQ_COUPONS", allocationSize = 1)
 	@Column(name = "COUPON_NO")
 	private Long couponNo;
 

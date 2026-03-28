@@ -2,8 +2,7 @@ package com.kh.trip.domain;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-
+import com.kh.trip.domain.common.BaseTimeEntity;
 import com.kh.trip.domain.enums.BookingStatus;
 
 import jakarta.persistence.Column;
@@ -26,19 +25,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(name = "BOOKINGS")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Booking {
+public class Booking extends BaseTimeEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BOOKINGS")
-	@SequenceGenerator(name = "SEQ_BOOKINGS", sequenceName = "SEQ_BOOKINGS", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_bookings")
+	@SequenceGenerator(name = "seq_bookings", sequenceName = "SEQ_BOOKINGS", allocationSize = 1)
 	@Column(name = "BOOKING_NO")
 	private Long bookingNo;
 
@@ -85,20 +82,16 @@ public class Booking {
 	@Column(name = "REQUEST_MESSAGE", length = 500)
 	private String requestMessage;
 
-	@Column(name = "REG_DATE", nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime regDate;
-
 	@PrePersist
 	public void validateNewBooking() {
 		// 1. 체크아웃 > 체크인 검증
-		if (checkInDate != null && checkOutDate != null) {
-			// 체크아웃이 체크인보다 이전이거나 같으면 안됨
-			if (!checkOutDate.isAfter(checkInDate)) {
-				throw new IllegalStateException("체크아웃 날짜는 체크인 날짜보다 이후여야 합니다.");
-			}
+		if (checkInDate == null || checkOutDate == null) {
+			throw new IllegalStateException("체크인/체크아웃 날짜는 필수입니다.");
 		}
-
+		// 체크아웃이 체크인보다 이전이거나 같으면 안됨
+		if (!checkOutDate.isAfter(checkInDate)) {
+			throw new IllegalStateException("체크아웃 날짜는 체크인 날짜보다 이후여야 합니다.");
+		}
 		// 2. 과거 날짜 예약 방지
 		if (checkInDate.isBefore(LocalDateTime.now())) {
 			throw new IllegalStateException("과거 날짜로는 예약할 수 없습니다.");
@@ -117,7 +110,7 @@ public class Booking {
 	public void complete() {
 		this.status = BookingStatus.COMPLETED;
 	}
-	
+
 	public void confirm() {
 		this.status = BookingStatus.CONFIRMED;
 	}

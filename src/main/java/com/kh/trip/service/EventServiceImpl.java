@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.kh.trip.domain.Coupon;
 import com.kh.trip.domain.Event;
@@ -23,7 +22,6 @@ import com.kh.trip.repository.CouponRepository;
 import com.kh.trip.repository.EventCouponRepository;
 import com.kh.trip.repository.EventRepository;
 import com.kh.trip.repository.UserRepository;
-import com.kh.trip.util.CustomFileUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,32 +65,31 @@ public class EventServiceImpl implements EventService {
 		Long viewCount = event.getViewCount() + 1L;
 		event.changeViewCount(viewCount);
 		eventRepository.save(event);
-		List<Coupon> coupons = eventCouponRepository.findAllById(eno);
-		List<String> couponNames = coupons.stream().map(coupon-> coupon.getCouponName()).collect(Collectors.toList());
+		List<Coupon> coupons = eventCouponRepository.findCouponsByEventNo(eno);
+		List<String> couponNames = coupons.stream().map(coupon -> coupon.getCouponName()).collect(Collectors.toList());
 		return EventDTO.builder().eventNo(event.getEventNo()).title(event.getTitle()).content(event.getContent())
 				.thumbnailUrl(event.getThumbnailUrl()).startDate(event.getStartDate()).endDate(event.getEndDate())
-				.adminUserNo(event.getAdminUserNo().getUserNo()).couponNames(couponNames).status(event.getStatus())
-				.viewCount(event.getViewCount())
-				.build();
+				.adminUser(event.getAdminUser().getUserNo()).couponNames(couponNames).status(event.getStatus())
+				.viewCount(event.getViewCount()).build();
 	}
 
 	// save
 	@Override
 	public Long save(EventDTO eventDTO) {
 		log.info(".........");
-		User user = userRepository.findById(eventDTO.getAdminUserNo())
+		User user = userRepository.findById(eventDTO.getAdminUser())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자 번호입니다."));
-		
+
 		Event event = Event.builder().title(eventDTO.getTitle()).content(eventDTO.getContent())
 				.thumbnailUrl(eventDTO.getThumbnailUrl()).startDate(eventDTO.getStartDate())
-				.endDate(eventDTO.getEndDate()).viewCount(0L).adminUserNo(user).status(EventStatus.DRAFT).build();
+				.endDate(eventDTO.getEndDate()).viewCount(0L).adminUser(user).status(EventStatus.DRAFT).build();
 		// [추가] 2. 중복 검사 (방어 코드)
-	    // 같은 제목의 이벤트가 이미 있는지 확인합니다.
-	    boolean isExist = eventRepository.existsByTitle(eventDTO.getTitle());
-	    
-	    if (isExist) {
-	        throw new IllegalStateException("이미 동일한 제목의 이벤트가 존재합니다.");
-	    }
+		// 같은 제목의 이벤트가 이미 있는지 확인합니다.
+		boolean isExist = eventRepository.existsByTitle(eventDTO.getTitle());
+
+		if (isExist) {
+			throw new IllegalStateException("이미 동일한 제목의 이벤트가 존재합니다.");
+		}
 		Event savedEvent = eventRepository.save(event);
 		List<Long> coupons = eventDTO.getCoupons();
 		if (coupons != null && !coupons.isEmpty()) {
@@ -130,5 +127,5 @@ public class EventServiceImpl implements EventService {
 		event.changeStatus(EventStatus.HIDDEN);
 		eventRepository.save(event);
 	}
-	
+
 }

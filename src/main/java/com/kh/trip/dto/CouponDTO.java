@@ -7,7 +7,6 @@ import com.kh.trip.domain.enums.DiscountType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CouponDTO {
 	private Long couponNo;
-	private Long adminUserNo;
+	private Long adminUser;
 	private String couponName;
 	private DiscountType discountType;
 	private Long discountValue;

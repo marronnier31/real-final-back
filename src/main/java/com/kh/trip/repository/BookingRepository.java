@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -37,8 +36,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Query("select b from Booking b join fetch b.user u join fetch b.room r join fetch r.lodging where b.bookingNo = :bookingNo")
 	Optional<Booking> findDetailByBookingNo(@Param("bookingNo") Long bookingNo);
 
-	@Modifying
-	@Query("update Booking b set b.status = :afterStatus where b.checkOutDate <= :today and b.status = :beforeStatus")
-	void updateStatusForCheckout(@Param("today") LocalDateTime today, @Param("afterStatus") BookingStatus after, @Param("beforeStatus") BookingStatus before);
+	@Query("select b.bookingNo from Booking b where b.checkOutDate <= :today and b.status = :status")
+	List<Long> findBookingNosToComplete(@Param("today")LocalDateTime today,@Param("status") BookingStatus status);
 
 }

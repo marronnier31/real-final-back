@@ -1,13 +1,11 @@
 package com.kh.trip.domain;
 
 import com.kh.trip.domain.common.BaseTimeEntity;
+import com.kh.trip.domain.enums.MemberGradeName;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
@@ -26,13 +24,9 @@ import lombok.ToString;
 @Builder
 public class MemberGrade extends BaseTimeEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEMBER_GRADES")
-	@SequenceGenerator(name = "SEQ_MEMBER_GRADES", sequenceName = "SEQ_MEMBER_GRADES", allocationSize = 1)
-	@Column(name = "grade_no")
-	private Long gradeNo;
-	
-	@Column(name = "GRADE_NAME", nullable = false,  unique = true, length = 50)
-	private String gradeName;
+	@Column(name = "GRADE_NAME")
+	@Builder.Default
+	private MemberGradeName gradeName = MemberGradeName.BASIC;
 	
 	@Column(name = "MIN_TOTAL_AMOUNT", nullable = false) //등급정렬에 쓰일 예정
 	@Builder.Default
@@ -57,7 +51,7 @@ public class MemberGrade extends BaseTimeEntity {
 	private boolean status = true; //삭제시 false == 0
 	
 	
-	public void changeName(String gradeName) {
+	public void changeName(MemberGradeName gradeName) {
 		this.gradeName = gradeName;
 	}
 	

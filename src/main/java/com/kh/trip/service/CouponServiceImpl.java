@@ -57,7 +57,7 @@ public class CouponServiceImpl implements CouponService {
 	}
 
 	public Coupon dtoToEntity(CouponDTO couponDTO) {
-		User user = userRepository.findById(couponDTO.getAdminUserNo())
+		User user = userRepository.findById(couponDTO.getAdminUser())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자 번호입니다."));
 
 		CouponStatus status = CouponStatus.ACTIVE;
@@ -73,7 +73,7 @@ public class CouponServiceImpl implements CouponService {
 	public List<CouponDTO> entityToDTO(List<Coupon> result) {
 		return result.stream()
 				.map(coupon -> CouponDTO.builder().couponNo(coupon.getCouponNo()).couponName(coupon.getCouponName())
-						.adminUserNo(coupon.getUser().getUserNo()).discountType(coupon.getDiscountType())
+						.adminUser(coupon.getUser().getUserNo()).discountType(coupon.getDiscountType())
 						.discountValue(coupon.getDiscountValue()).startDate(coupon.getStartDate())
 						.endDate(coupon.getEndDate()).status(coupon.getStatus()).build())
 				.collect(Collectors.toList());

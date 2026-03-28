@@ -17,12 +17,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "LODGING_IMAGES")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 protected
 @AllArgsConstructor
 @Builder

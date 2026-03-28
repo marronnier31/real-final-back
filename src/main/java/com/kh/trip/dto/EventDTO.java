@@ -10,18 +10,18 @@ import com.kh.trip.domain.enums.EventStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class EventDTO {
 	private Long eventNo;
-	private Long adminUserNo;
+	private Long adminUser;
     private String title;
     private String content;
     private String thumbnailUrl;

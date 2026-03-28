@@ -18,6 +18,8 @@ import com.kh.trip.service.BookingService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -34,31 +36,31 @@ public class BookingController {
 		return Map.of("result", bno);
 	}
 
-	@GetMapping("/userlist/{uno}")
-	public PageResponseDTO<BookingDTO> findByUserId(@PathVariable(name = "uno") Long userNo,
+	@GetMapping("/{bookingNo}")
+	public BookingDTO findById(@PathVariable Long bookingNo) {
+		log.info("findById()" + bookingNo);
+		return service.findById(bookingNo);
+	}
+	
+	@GetMapping("/userlist/{userNo}")
+	public PageResponseDTO<BookingDTO> findByUserId(@PathVariable Long userNo,
 			PageRequestDTO pageRequestDTO) {
 		log.info("findByUserId() userNo= " + userNo);
 		return service.findByUserId(userNo, pageRequestDTO);
 	}
 
-	@GetMapping("/roomlist/{uno}")
-	public PageResponseDTO<BookingDTO> findByRoomId(@PathVariable(name = "uno") Long userNo,
+	@GetMapping("/roomlist/{userNo}")
+	public PageResponseDTO<BookingDTO> findByRoomId(@PathVariable Long userNo,
 			PageRequestDTO pageRequestDTO) {
 		log.info("findByLodgingId() lodgingNo= " + userNo);
 		return service.findByRoomId(userNo, pageRequestDTO);
 	}
 
-	@DeleteMapping("/{bno}")
-	public Map<String, String> cancelBooking(@PathVariable(name = "bno") Long bookingNo) {
+	@DeleteMapping("/{bookingNo}")
+	public Map<String, String> cancelBooking(@PathVariable Long bookingNo) {
 		log.info("findByUserId() = " + bookingNo);
 		service.cancelBooking(bookingNo);
 		return Map.of("result", "SUCCESS");
 	}
 
-	@PostMapping("/{bno}/complete")
-	public Map<String, String> complete(@PathVariable(name = "bno") Long bookingNo) {
-		log.info("complete() bookingNo = " + bookingNo);
-		service.complete(bookingNo);
-		return Map.of("result", "SUCCESS");
-	}
 }

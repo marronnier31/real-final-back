@@ -8,6 +8,8 @@ public interface BookingService {
 
 	Long save(BookingDTO bookingDTO);
 
+	BookingDTO findById(Long bookingNo);
+	
 	PageResponseDTO<BookingDTO> findByUserId(Long userNo,PageRequestDTO pageRequestDTO);
 
 	PageResponseDTO<BookingDTO> findByRoomId(Long hostNo,PageRequestDTO pageRequestDTO);

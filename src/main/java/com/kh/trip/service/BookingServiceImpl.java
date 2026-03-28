@@ -117,6 +117,11 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
+	public BookingDTO findById(Long bookingNo) {
+		return entityToDTO(bookingNo);
+	}
+
+	@Override
 	public PageResponseDTO<BookingDTO> findByUserId(Long userNo, PageRequestDTO pageRequestDTO) {
 		Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
 				Sort.by("bookingNo").descending());
@@ -191,6 +196,19 @@ public class BookingServiceImpl implements BookingService {
 		}).collect(Collectors.toList());
 	}
 
+	public BookingDTO entityToDTO(Long bookingNo) {
+		Optional<Booking> result = repository.findById(bookingNo);
+		Booking booking = result.orElseThrow(()-> new IllegalArgumentException("존재하지 않는 예약번호입니다."));
+		return BookingDTO.builder().bookingNo(booking.getBookingNo()).userNo(booking.getUser().getUserNo())
+				.roomNo(booking.getRoom().getRoomNo()).lodgingName(booking.getRoom().getLodging().getLodgingName())
+				.userCouponNo(booking.getUserCoupon() != null ? booking.getUserCoupon().getUserCouponNo() : null)
+				.roomName(booking.getRoom().getRoomName()).checkInDate(booking.getCheckInDate())
+				.checkOutDate(booking.getCheckOutDate()).guestCount(booking.getGuestCount())
+				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount())
+				.totalPrice(booking.getTotalPrice()).status(booking.getStatus())
+				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build();
+	}
+	
 	public String findLodgingName(User user, Long targetLodgingNo) {
 		String lodgingName = null;
 		List<Lodging> lodgingList = repository.findLodigByUserId(user.getUserNo());
@@ -263,4 +281,5 @@ public class BookingServiceImpl implements BookingService {
 	    
 	    user.changeMemberGrade(memberGrade);
 	}
+
 }

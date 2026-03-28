@@ -17,12 +17,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "REVIEWS")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -39,11 +37,13 @@ public class Review extends BaseTimeEntity {
 	@JoinColumn(name = "BOOKING_NO", nullable = false) // [추가] 실제 DB의 FK 컬럼명 BOOKING_NO
 	private Booking booking; // 어떤 예약에 대한 리뷰인지 Booking 엔티티로 참조
 
-	@Column(name = "USER_NO", nullable = false) // 작성 회원 번호 (필수)
-	private Long userNo; // 리뷰 작성자 회원 번호
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "USER_NO", nullable = false) // 작성 회원 번호 (필수)
+	private User user; // 리뷰 작성자 회원 번호
 
-	@Column(name = "LODGING_NO", nullable = false) // 숙소 번호 (필수)
-	private Long lodgingNo; // 어떤 숙소에 대한 리뷰인지
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "LODGING_NO", nullable = false) // 숙소 번호 (필수)
+	private Lodging lodging; // 어떤 숙소에 대한 리뷰인지
 
 	@Column(name = "RATING", nullable = false) // 평점 컬럼
 	private Integer rating; // 평점 (1~5)
@@ -51,4 +51,11 @@ public class Review extends BaseTimeEntity {
 	@Column(name = "CONTENT", nullable = false, length = 1000) // 리뷰 내용
 	private String content; // 리뷰 본문
 
+	public void changeRating(Integer rating) {
+		this.rating = rating;
+	}
+
+	public void changeContent(String content) {
+		this.content = content;
+	}
 }

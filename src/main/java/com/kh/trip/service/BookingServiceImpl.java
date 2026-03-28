@@ -3,6 +3,7 @@ package com.kh.trip.service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.kh.trip.domain.Booking;
 import com.kh.trip.domain.Lodging;
+import com.kh.trip.domain.MemberGrade;
 import com.kh.trip.domain.MileageHistory;
 import com.kh.trip.domain.Payment;
 import com.kh.trip.domain.Room;
@@ -24,6 +26,7 @@ import com.kh.trip.domain.UserCoupon;
 import com.kh.trip.domain.enums.BookingStatus;
 import com.kh.trip.domain.enums.CouponStatus;
 import com.kh.trip.domain.enums.DiscountType;
+import com.kh.trip.domain.enums.MemberGradeName;
 import com.kh.trip.domain.enums.MileageChangeType;
 import com.kh.trip.domain.enums.MileageStatus;
 import com.kh.trip.domain.enums.RoomStatus;
@@ -31,6 +34,7 @@ import com.kh.trip.dto.BookingDTO;
 import com.kh.trip.dto.PageRequestDTO;
 import com.kh.trip.dto.PageResponseDTO;
 import com.kh.trip.repository.BookingRepository;
+import com.kh.trip.repository.MemberGradeRepository;
 import com.kh.trip.repository.MileageHistoryRepository;
 import com.kh.trip.repository.PaymentRepository;
 import com.kh.trip.repository.RoomRepository;
@@ -55,7 +59,8 @@ public class BookingServiceImpl implements BookingService {
 	private final RoomRepository roomRepository;
 	private final PaymentRepository paymentRepository;
 	private final MileageHistoryRepository mileageHistoryRepository;
-
+	private final MemberGradeRepository memberGradeRepository;
+	
 	@Override
 	public Long save(BookingDTO bookingDTO) {
 
@@ -109,6 +114,11 @@ public class BookingServiceImpl implements BookingService {
 			userCoupon.changeStatus(CouponStatus.USED);
 		}
 		return bookingNo;
+	}
+
+	@Override
+	public BookingDTO findById(Long bookingNo) {
+		return entityToDTO(bookingNo);
 	}
 
 	@Override
@@ -186,6 +196,19 @@ public class BookingServiceImpl implements BookingService {
 		}).collect(Collectors.toList());
 	}
 
+	public BookingDTO entityToDTO(Long bookingNo) {
+		Optional<Booking> result = repository.findById(bookingNo);
+		Booking booking = result.orElseThrow(()-> new IllegalArgumentException("존재하지 않는 예약번호입니다."));
+		return BookingDTO.builder().bookingNo(booking.getBookingNo()).userNo(booking.getUser().getUserNo())
+				.roomNo(booking.getRoom().getRoomNo()).lodgingName(booking.getRoom().getLodging().getLodgingName())
+				.userCouponNo(booking.getUserCoupon() != null ? booking.getUserCoupon().getUserCouponNo() : null)
+				.roomName(booking.getRoom().getRoomName()).checkInDate(booking.getCheckInDate())
+				.checkOutDate(booking.getCheckOutDate()).guestCount(booking.getGuestCount())
+				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount())
+				.totalPrice(booking.getTotalPrice()).status(booking.getStatus())
+				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build();
+	}
+	
 	public String findLodgingName(User user, Long targetLodgingNo) {
 		String lodgingName = null;
 		List<Lodging> lodgingList = repository.findLodigByUserId(user.getUserNo());
@@ -225,6 +248,9 @@ public class BookingServiceImpl implements BookingService {
 		booking.complete();
 
 		User user = booking.getUser();
+		user.addTotalSpent(payment.getPaymentAmount()); 
+		user.addStayCount(1L);
+		
 		Long earnedMileage = payment.getPaymentAmount() / 100;
 		user.addMileage(earnedMileage);
 
@@ -233,8 +259,27 @@ public class BookingServiceImpl implements BookingService {
 				.reason("숙박 완료 마일리지 적립").status(MileageStatus.NORMAL).build();
 
 		mileageHistoryRepository.save(mileageHistory);
+		updateMemberGrade(user);
 		userRepository.save(user);
 		repository.save(booking);
+	}
+
+	private void updateMemberGrade(User user) {
+	    MemberGradeName gradeName;
+	    if (user.getTotalSpent() >= 3000000 || user.getStayCount() >= 30) {
+	    	gradeName = MemberGradeName.BLACK;
+	    } else if (user.getTotalSpent() >= 1500000 || user.getStayCount() >= 15) {
+	    	gradeName = MemberGradeName.GOLD;
+	    } else if (user.getTotalSpent() >= 500000 || user.getStayCount() >= 5) {
+	    	gradeName = MemberGradeName.SILVER;
+	    } else {
+	    	gradeName = MemberGradeName.BASIC;
+	    }
+
+	    Optional<MemberGrade> result = memberGradeRepository.findByGradeName(gradeName);
+	    MemberGrade memberGrade = result.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "등급 정보가 없습니다."));
+	    
+	    user.changeMemberGrade(memberGrade);
 	}
 
 }

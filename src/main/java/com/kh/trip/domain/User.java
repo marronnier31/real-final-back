@@ -2,6 +2,7 @@
 package com.kh.trip.domain;
 
 import com.kh.trip.domain.common.BaseTimeEntity;
+import com.kh.trip.domain.enums.MemberGradeName;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +42,7 @@ public class User extends BaseTimeEntity {
 	private String phone;
 
 	@ManyToOne
-	@JoinColumn(name = "GRADE_NO")
+	@JoinColumn(name = "GRADE_NAME")
 	private MemberGrade memberGrade;
 
 	@Builder.Default
@@ -76,4 +77,15 @@ public class User extends BaseTimeEntity {
 		this.enabled = enabled;
 	}
 
+	public void addTotalSpent(Long totalSpent) {
+		this.totalSpent += totalSpent;
+	}
+
+	public void addStayCount(Long stayCount) {
+		this.stayCount += stayCount;
+	}
+	
+	public void changeMemberGrade(MemberGrade memberGrade) {
+		this.memberGrade = memberGrade;
+	}
 }

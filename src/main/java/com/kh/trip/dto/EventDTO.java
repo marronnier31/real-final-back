@@ -4,6 +4,8 @@ package com.kh.trip.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.kh.trip.domain.enums.EventStatus;
 
 import lombok.AllArgsConstructor;
@@ -29,4 +31,5 @@ public class EventDTO {
     private EventStatus status;
     private List<Long> coupons;
     private List<String> couponNames;
+    private MultipartFile file;
 }

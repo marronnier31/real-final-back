@@ -27,7 +27,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	Page<Booking> findByHostNo(@Param("hostNo") Long hostNo, Pageable pageable);
 
 	@Query("select r.lodging from Booking b join b.room r where b.user.userNo = :userNo")
-	List<Lodging> findLodigByUserId(@Param("userNo") Long userNo);
+	List<Lodging> findLodgingByUserId(@Param("userNo") Long userNo);
 
 	/**
 	 * 리뷰 작성 검증용 상세 조회 bookingNo로 예약 1건을 조회하면서 user, room 정보도 같이 가져온다 이유: 1. 로그인한

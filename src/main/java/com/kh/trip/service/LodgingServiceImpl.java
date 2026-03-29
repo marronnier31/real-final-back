@@ -118,8 +118,10 @@ public class LodgingServiceImpl implements LodgingService {
 
 			LodgingDTO lodgingDTO = toLodgingDTO(lodging);
 
-			String imageStr = image.getFileName();
-			lodgingDTO.setUploadFileNames(List.of(imageStr));
+			String imageStr = image != null ? image.getFileName() : null;
+			if (imageStr != null) {
+				lodgingDTO.setUploadFileNames(List.of(imageStr));
+			}
 
 			return lodgingDTO;
 		}).collect(Collectors.toList());
@@ -270,9 +272,8 @@ public class LodgingServiceImpl implements LodgingService {
 
 		// hostNo로 실제 User 엔티티 조회
 
-	    HostProfile host = hostProfileRepository.findById(lodgingDTO.getHostNo())
-	            .orElseThrow(() -> new IllegalArgumentException(
-	                    "존재하지 않는 호스트입니다. hostNo=" + lodgingDTO.getHostNo()));
+		HostProfile host = hostProfileRepository.findById(lodgingDTO.getHostNo())
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 호스트입니다. hostNo=" + lodgingDTO.getHostNo()));
 
 		Lodging lodging = Lodging.builder().lodgingNo(lodgingDTO.getLodgingNo()) // 숙소 번호 세팅
 				.host(host) // User 엔티티 세팅

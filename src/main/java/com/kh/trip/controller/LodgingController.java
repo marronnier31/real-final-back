@@ -33,7 +33,7 @@ public class LodgingController {
 
 	@PostMapping("/")
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('HOST') or hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	public LodgingDTO createLodging(@ModelAttribute LodgingDTO lodgingDTO) {
 		return lodgingService.createLodging(lodgingDTO);
 	}
@@ -64,7 +64,7 @@ public class LodgingController {
 	}
 
 	@PatchMapping("/{lodgingNo}")
-	@PreAuthorize("hasRole('HOST') or hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	public LodgingDTO updateLodging(@PathVariable Long lodgingNo, @ModelAttribute LodgingDTO lodgingDTO) {
 		lodgingDTO.setLodgingNo(lodgingNo);
 		return lodgingService.updateLodging(lodgingNo, lodgingDTO);
@@ -72,7 +72,7 @@ public class LodgingController {
 
 	@DeleteMapping("/{lodgingNo}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('HOST') or hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	public void deleteLodging(@PathVariable Long lodgingNo) {
 		lodgingService.deleteLodging(lodgingNo);
 	}

@@ -4,6 +4,7 @@ import com.kh.trip.dto.BookingDTO;
 import com.kh.trip.dto.InquiryDTO;
 import com.kh.trip.dto.PageRequestDTO;
 import com.kh.trip.dto.PageResponseDTO;
+import com.kh.trip.domain.enums.InquiryStatus;
 
 public interface InquiryService {
 
@@ -18,6 +19,8 @@ public interface InquiryService {
 	void delete(Long inquiryNo);
 
 	InquiryDTO findById(Long inquiryNo);
+
+	InquiryDTO updateStatus(Long inquiryNo, InquiryStatus status);
 
 	
 }

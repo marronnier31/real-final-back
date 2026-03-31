@@ -76,6 +76,14 @@ public class InquiryServiceImpl implements InquiryService{
 		return entityToDTO(inquiry);
 	}
 
+	@Override
+	public InquiryDTO updateStatus(Long inquiryNo, InquiryStatus status) {
+		Inquiry inquiry = repository.findById(inquiryNo)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의 정보입니다."));
+		inquiry.changeStatus(status);
+		return entityToDTO(repository.save(inquiry));
+	}
+
 	public Inquiry dtoToEntity(InquiryDTO inquiryDTO) {
 		User user = userRepository.findById(inquiryDTO.getUserNo())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 번호입니다."));

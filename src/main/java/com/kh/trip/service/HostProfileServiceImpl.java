@@ -126,7 +126,9 @@ public class HostProfileServiceImpl implements HostProfileService {
 		return HostProfileDTO.builder().hostNo(hostProfile.getHostNo()).userNo(hostProfile.getUser().getUserNo())
 				.businessName(hostProfile.getBusinessName()).businessNumber(hostProfile.getBusinessNumber())
 				.ownerName(hostProfile.getOwnerName()).approvalStatus(hostProfile.getApprovalStatus().name())
-				.rejectReason(hostProfile.getRejectReason()).enabled(hostProfile.getEnabled()).build();
+				.rejectReason(hostProfile.getRejectReason()).enabled(hostProfile.getEnabled())
+				.regDate(hostProfile.getRegDate() != null ? hostProfile.getRegDate().toString() : null)
+				.updDate(hostProfile.getUpdDate() != null ? hostProfile.getUpdDate().toString() : null).build();
 	}
 
 }

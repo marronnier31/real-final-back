@@ -98,6 +98,7 @@ public class MypageDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class BookingItem {
+		private Long bookingNo;
 		private String bookingId;
 		private Long lodgingId;
 		private String lodgingName;

@@ -1,6 +1,5 @@
 package com.kh.trip.service;
 
-import com.kh.trip.dto.BookingDTO;
 import com.kh.trip.dto.InquiryDTO;
 import com.kh.trip.dto.PageRequestDTO;
 import com.kh.trip.dto.PageResponseDTO;

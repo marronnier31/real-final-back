@@ -298,8 +298,8 @@ public class MypageServiceImpl implements MypageService {
 				.type(toInquiryType(inquiry.getInquiryType()))
 				.status(toInquiryStatus(inquiry.getStatus()))
 				.actor("회원")
-				.lodging("운영 문의")
-				.bookingNo("-")
+				.lodging(resolveInquiryLodging(inquiry))
+				.bookingNo(resolveInquiryBookingNo(inquiry))
 				.updatedAt(formatDateTime(inquiry.getUpdDate() != null ? inquiry.getUpdDate() : inquiry.getRegDate()))
 				.body(inquiry.getContent())
 				.messages(buildInquiryMessages(inquiry, comments))
@@ -380,6 +380,7 @@ public class MypageServiceImpl implements MypageService {
 		boolean hasPayment = payments.stream().anyMatch(payment -> payment.getBooking().getBookingNo().equals(booking.getBookingNo()));
 
 		return MypageDTO.BookingItem.builder()
+				.bookingNo(booking.getBookingNo())
 				.bookingId(bookingCode)
 				.lodgingId(lodging.getLodgingNo())
 				.lodgingName(lodging.getLodgingName())
@@ -474,11 +475,25 @@ public class MypageServiceImpl implements MypageService {
 				.type(toInquiryType(inquiry.getInquiryType()))
 				.status(toInquiryStatus(inquiry.getStatus()))
 				.actor("회원")
-				.lodging(null)
-				.bookingNo(null)
+				.lodging(resolveInquiryLodging(inquiry))
+				.bookingNo(resolveInquiryBookingNo(inquiry))
 				.updatedAt(inquiry.getUpdDate() != null ? DATE_TIME_FORMAT.format(inquiry.getUpdDate()) : null)
 				.preview(inquiry.getContent())
 				.build();
+	}
+
+	private String resolveInquiryLodging(Inquiry inquiry) {
+		if (inquiry.getRelatedLodgingName() == null || inquiry.getRelatedLodgingName().isBlank()) {
+			return "운영 문의";
+		}
+		return inquiry.getRelatedLodgingName();
+	}
+
+	private String resolveInquiryBookingNo(Inquiry inquiry) {
+		if (inquiry.getRelatedBookingNo() == null || inquiry.getRelatedBookingNo().isBlank()) {
+			return "-";
+		}
+		return inquiry.getRelatedBookingNo();
 	}
 
 	private List<MypageDTO.InquiryMessageItem> buildInquiryMessages(Inquiry inquiry, List<Comment> comments) {

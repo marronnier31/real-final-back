@@ -164,6 +164,78 @@
   - 기존 프론트는 호스트 신청 초안 화면에서 마지막 제출 시각을 임시 현재 시각으로 채우고 있었다.
   - 제출 후 다시 불러온 상태를 실제 데이터 기준으로 보여주려면 DTO에 시간 필드가 필요했다.
 
+### 10. 관리자 리뷰 숨김/복구 API 추가
+
+- 백엔드 파일
+  - `src/main/java/com/kh/trip/domain/ReviewVisibility.java`
+  - `src/main/java/com/kh/trip/repository/ReviewVisibilityRepository.java`
+  - `src/main/java/com/kh/trip/dto/ReviewAdminDTO.java`
+  - `src/main/java/com/kh/trip/controller/ReviewController.java`
+  - `src/main/java/com/kh/trip/service/ReviewService.java`
+  - `src/main/java/com/kh/trip/service/ReviewServiceImpl.java`
+
+- 추가 내용
+  - `GET /api/reviews/admin`
+  - `PATCH /api/reviews/{reviewNo}/visibility`
+  - 공개 리뷰 목록과 숙소 리뷰 통계도 `REVIEW_VISIBILITY` 기준으로 필터링
+
+- 이유
+  - 기존 리뷰 운영 화면은 프론트 버튼만 있고 실제 숨김/복구 상태를 저장할 백엔드 구조가 없었다.
+  - 기존 `REVIEWS` 테이블 컬럼을 건드리지 않기 위해 별도 가시성 테이블로 우회했다.
+
+### 11. 판매자 자산 운영을 이미지 정렬 관리로 전환
+
+- 프론트 파일
+  - `trip-zone/frontend/src/services/dashboardService.js`
+  - `trip-zone/frontend/src/pages/seller/SellerAssetsPage.jsx`
+
+- 변경 내용
+  - 기존 `노출/검수중` 가상 상태 버튼 제거
+  - 실제 백엔드가 이미 지원하는 `uploadFileNames` 순서를 이용해
+    - `대표 지정`
+    - `뒤로 이동`
+    로 바꿈
+  - 숙소 수정 API `PATCH /api/lodgings/{lodgingNo}`에 재정렬된 `uploadFileNames`를 보내 실제 대표 이미지와 순서를 바꾼다.
+
+- 이유
+  - 이미지 검수 상태 컬럼은 백엔드에 없다.
+  - 대신 실제로 존재하는 이미지 순서 모델을 사용하는 것이 데이터와 UI를 맞춘 방식이다.
+
+### 12. 관리자 문의에 예약번호/숙소명 메타 저장 추가
+
+- 백엔드 파일
+  - `src/main/java/com/kh/trip/domain/Inquiry.java`
+  - `src/main/java/com/kh/trip/dto/InquiryDTO.java`
+  - `src/main/java/com/kh/trip/service/InquiryService.java`
+  - `src/main/java/com/kh/trip/service/InquiryServiceImpl.java`
+  - `src/main/java/com/kh/trip/service/MypageServiceImpl.java`
+
+- 추가 내용
+  - `INQUIRIES`에 `RELATED_BOOKING_NO`, `RELATED_LODGING_NAME` nullable 컬럼 추가
+  - 문의 등록/수정 시 예약번호, 숙소명을 함께 저장
+  - 마이페이지 문의 목록/상세 응답에서도 같은 메타 반환
+
+- 이유
+  - 기존 화면은 예약번호와 숙소명을 보여줄 자리가 있었지만 실제 저장은 제목/유형/내용만 하고 있었다.
+  - 운영 문의 메타는 예약 FK가 아니라 참고 정보여서 문자열 보조 컬럼으로 두는 편이 변경 범위가 가장 작다.
+
+### 13. 리뷰 이미지 업로드 API 추가
+
+- 백엔드 파일
+  - `src/main/java/com/kh/trip/controller/ReviewController.java`
+  - `src/main/java/com/kh/trip/service/ReviewService.java`
+  - `src/main/java/com/kh/trip/service/ReviewServiceImpl.java`
+
+- 추가 내용
+  - `POST /api/reviews/images`
+  - multipart 업로드 파일을 기존 `CustomFileUtil`로 저장
+  - 반환값은 저장된 파일명 배열
+  - 프론트는 파일명을 실제 조회 가능한 URL로 바꿔 미리보기와 리뷰 등록 payload에 사용
+
+- 이유
+  - 리뷰 작성 폼은 사진 첨부 UI가 있었지만 실제로는 업로드가 연결되지 않아 공지 문구만 뜨고 있었다.
+  - 기존 업로드 유틸과 `/api/view/**`를 재사용하면 새 스토리지 구조 없이 바로 붙일 수 있다.
+
 ## 검증 결과
 
 ### 프론트
@@ -190,8 +262,8 @@
 
 - 현재 연결한 것은 조회와 핵심 상태 변경 일부다.
 - 아직 읽기 전용 또는 보강 대기인 영역
-  - 리뷰 운영 상태 변경
-  - 판매자 자산 검수 상태 변경
+  - 리뷰 신고 집계
+  - 판매자 자산 검수 상태
 
 ### 3. 마이페이지 문의 상세
 

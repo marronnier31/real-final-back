@@ -1,6 +1,7 @@
 package com.kh.trip.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,10 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kh.trip.dto.ReviewDTO;
+import com.kh.trip.dto.ReviewAdminDTO;
 import com.kh.trip.dto.ReviewStatsDTO;
 import com.kh.trip.security.AuthUserPrincipal;
 import com.kh.trip.service.ReviewService;
@@ -47,6 +51,18 @@ public class ReviewController {
 
 		// 로그인한 사용자 번호와 리뷰 작성 DTO를 서비스로 전달
 		return reviewService.createReview(authUser.getUserNo(), reviewDTO); 
+	}
+
+	@PostMapping("/images")
+	@PreAuthorize("hasRole('USER')")
+	public Map<String, List<String>> uploadReviewImages(@AuthenticationPrincipal AuthUserPrincipal authUser,
+			@RequestParam("files") List<MultipartFile> files) {
+
+		if (authUser == null) {
+			throw new IllegalArgumentException("로그인한 사용자만 리뷰 이미지를 업로드할 수 있습니다.");
+		}
+
+		return Map.of("imageUrls", reviewService.uploadReviewImages(files));
 	}
 
 	// 리뷰 수정
@@ -85,6 +101,18 @@ public class ReviewController {
 	@GetMapping("/lodgings/{lodgingNo}/stats")
 	public ReviewStatsDTO getReviewStatsByLodging(@PathVariable Long lodgingNo) {
 		return reviewService.getReviewStatsByLodging(lodgingNo);
+	}
+
+	@GetMapping("/admin")
+	@PreAuthorize("hasRole('ADMIN')")
+	public List<ReviewAdminDTO> getAdminReviews() {
+		return reviewService.getAdminReviews();
+	}
+
+	@PatchMapping("/{reviewNo}/visibility")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ReviewAdminDTO updateReviewVisibility(@PathVariable Long reviewNo, @RequestBody Map<String, String> payload) {
+		return reviewService.updateReviewVisibility(reviewNo, payload.get("status"));
 	}
 
 }

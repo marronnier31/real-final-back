@@ -16,4 +16,8 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 	@Query("update Coupon c set c.status = :after where c.endDate <= :today and c.status = :before")
 	void updateStatusForEndDate(@Param("today")LocalDateTime today,@Param("after")CouponStatus expired,@Param("before")CouponStatus active);
 
+	@Modifying
+	@Query("update Coupon c set c.status = :after where c.startDate <= :today and c.status = :before")
+	void updateStatusForStartDate(@Param("today")LocalDateTime today, @Param("before")CouponStatus inactive, @Param("after")CouponStatus active);
+
 }

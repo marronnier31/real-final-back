@@ -17,8 +17,14 @@ public class CouponScheduler {
 	
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional
-	public void updateCouponStatus() {
+	public void updateCouponStatusToExpired() {
 		LocalDateTime today = LocalDateTime.now();
 		couponRepository.updateStatusForEndDate(today,CouponStatus.EXPIRED, CouponStatus.ACTIVE);
+	}
+	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
+	public void updateCouponStatusToActive() {
+		LocalDateTime today = LocalDateTime.now();
+		couponRepository.updateStatusForStartDate(today,CouponStatus.INACTIVE, CouponStatus.ACTIVE);
 	}
 }

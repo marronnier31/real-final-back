@@ -417,7 +417,7 @@ public class MypageServiceImpl implements MypageService {
 	}
 
 	private List<WishList> loadWishlistRows(Long userNo) {
-		return wishListRepository.findByUserId(userNo, Pageable.unpaged()).getContent().stream()
+		return wishListRepository.findByUserUserNo(userNo, Pageable.unpaged()).getContent().stream()
 				.sorted(Comparator.comparing(WishList::getRegDate, Comparator.nullsLast(Comparator.reverseOrder())))
 				.toList();
 	}

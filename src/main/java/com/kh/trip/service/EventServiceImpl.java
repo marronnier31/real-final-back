@@ -42,7 +42,7 @@ public class EventServiceImpl implements EventService {
 		Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
 				Sort.by("eventNo").descending());
 
-		Page<Event> result = eventRepository.findAll(pageable, EventStatus.HIDDEN);
+		Page<Event> result = eventRepository.findAllByStatusNot(EventStatus.HIDDEN, pageable);
 
 		List<EventDTO> dtoList = result.getContent().stream().map(event -> {
 			return EventDTO.builder().eventNo(event.getEventNo()).title(event.getTitle()).content(event.getContent())

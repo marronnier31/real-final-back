@@ -14,8 +14,7 @@ import com.kh.trip.domain.enums.EventStatus;
 
 public interface EventRepository extends JpaRepository<Event, Long>{
 
-	@Query("select e from Event e where e.status != :status")
-	Page<Event> findAll(Pageable pageable,@Param("status")EventStatus status);
+	Page<Event> findAllByStatusNot(EventStatus status, Pageable pageable);
 	
 	boolean existsByTitle(String title);
 

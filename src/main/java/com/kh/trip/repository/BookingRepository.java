@@ -124,4 +124,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 			    order by l.lodgingNo desc
 			""")
 	List<Object[]> getSellerSalesSummary(@Param("hostNo") Long hostNo);
+
+	@Query("select b from Booking b where b.user.userNo = :userNo and b.room.lodging.lodgingNo = :lodgingNo and b.status in :statuses order by b.bookingNo desc")
+	List<Booking> findForInquiryRoom( @Param("userNo") Long userNo, @Param("lodgingNo") Long lodgingNo,  @Param("statuses") List<BookingStatus> statuses,
+		    Pageable pageable);
 }

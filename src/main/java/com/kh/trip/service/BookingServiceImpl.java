@@ -38,8 +38,8 @@ import com.kh.trip.dto.BookingDTO;
 import com.kh.trip.dto.PageRequestDTO;
 import com.kh.trip.dto.PageResponseDTO;
 import com.kh.trip.dto.SellerLodgingSalesDTO;
-import com.kh.trip.dto.SellerLodgingTypeSalesDTO;
 import com.kh.trip.dto.SellerLodgingTypeRatioDTO;
+import com.kh.trip.dto.SellerLodgingTypeSalesDTO;
 import com.kh.trip.dto.SellerMonthlySalesDTO;
 import com.kh.trip.dto.SellerSalesSummaryDTO;
 import com.kh.trip.repository.BookingRepository;
@@ -96,9 +96,10 @@ public class BookingServiceImpl implements BookingService {
 		Long roomPrice = room.getPricePerNight() * daysBetween;
 		Long totalPrice = roomPrice;
 		Long discountAmount = 0L;
-		Long mileageUsed = 0L;
 
 		UserCoupon userCoupon = null;
+		Long couponDiscountAmount = 0L;
+
 		if (bookingDTO.getUserCouponNo() != null) {
 			userCoupon = userCouponRepository.findById(bookingDTO.getUserCouponNo())
 					.orElseThrow(() -> new IllegalArgumentException("회원이 갖고 있지 않는 쿠폰번호입니다."));
@@ -109,28 +110,33 @@ public class BookingServiceImpl implements BookingService {
 			DiscountType type = userCoupon.getCoupon().getDiscountType();
 			Long discountValue = userCoupon.getCoupon().getDiscountValue();
 
-			totalPrice = type.calculate(roomPrice, discountValue);
-
-			// 0원 미만으로 떨어지는 것을 방지하는 안전장치
-			if (totalPrice < 0)
-				totalPrice = 0L;
-
-			discountAmount = roomPrice - totalPrice;
-		}
-
-		if (bookingDTO.getMileageUsed() != null && bookingDTO.getMileageUsed() > 0) {
-			if (bookingDTO.getMileageUsed() > user.getMileage()) {
-				throw new IllegalArgumentException("보유 마일리지를 초과했습니다.");
+			Long discountedPrice = type.calculate(roomPrice, discountValue);
+			if (discountedPrice < 0) {
+				discountedPrice = 0L;
 			}
 
-			mileageUsed = Math.min(bookingDTO.getMileageUsed(), totalPrice);
-			totalPrice -= mileageUsed;
+			couponDiscountAmount = roomPrice - discountedPrice;
+			totalPrice = discountedPrice;
 		}
 
-		Booking booking = Booking.builder().user(user).userCoupon(userCoupon).room(room)
+		Long requestedMileage = bookingDTO.getMileageUsed() == null ? 0L : bookingDTO.getMileageUsed();
+		if (requestedMileage < 0) {
+			throw new IllegalArgumentException("마일리지는 0 이상이어야 합니다.");
+		}
+
+		if (requestedMileage > user.getMileage()) {
+			throw new IllegalArgumentException("보유 마일리지를 초과하여 사용할 수 없습니다.");
+		}
+
+		// 입력된 마일리지가 총 가격보다 많으면 총 가격만큼만 사용하도록 로직구성
+		Long mileageUsed = Math.min(requestedMileage, totalPrice);
+		totalPrice -= mileageUsed;
+
+		discountAmount = couponDiscountAmount + mileageUsed;
+		Booking booking = Booking.builder().user(user).userCoupon(userCoupon).room(room).mileageUsed(mileageUsed)
 				.checkInDate(bookingDTO.getCheckInDate()).checkOutDate(bookingDTO.getCheckOutDate())
 				.guestCount(bookingDTO.getGuestCount()).pricePerNight(Long.valueOf(room.getPricePerNight()))
-				.discountAmount(discountAmount).mileageUsed(mileageUsed).totalPrice(totalPrice)
+				.discountAmount(discountAmount).totalPrice(totalPrice)
 				.requestMessage(bookingDTO.getRequestMessage()).status(BookingStatus.PENDING).build();
 		Booking savedBooking = repository.save(booking);
 
@@ -138,7 +144,7 @@ public class BookingServiceImpl implements BookingService {
 			userCoupon.changeUsedAt(LocalDateTime.now());
 			userCoupon.changeStatus(CouponStatus.USED);
 		}
-
+		
 		return savedBooking.getBookingNo();
 	}
 
@@ -224,7 +230,7 @@ public class BookingServiceImpl implements BookingService {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "숙박 완료된 예약은 취소할 수 없습니다. bookingNo=" + bookingNo);
 		}
 
-		if (booking.getStatus() == BookingStatus.CONFIRMED) {
+		if (booking.getStatus() == BookingStatus.CONFIRMED || booking.getStatus() == BookingStatus.PENDING) {
 			Payment payment = paymentRepository.findFirstByBooking_BookingNoOrderByPaymentNoDesc(bookingNo)
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 							"예약에 대한 결제 정보가 없습니다. bookingNo=" + bookingNo));
@@ -232,12 +238,6 @@ public class BookingServiceImpl implements BookingService {
 			paymentService.cancel(payment.getPaymentNo(), booking.getUser().getUserNo());
 			return;
 		}
-
-		if (booking.getStatus() == BookingStatus.PENDING) {
-			booking.cancel();
-			repository.save(booking);
-		}
-
 	}
 
 	private BookingDTO confirmBooking(Long bookingNo) {

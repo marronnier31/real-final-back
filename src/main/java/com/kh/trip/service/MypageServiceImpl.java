@@ -285,6 +285,7 @@ public class MypageServiceImpl implements MypageService {
 	private MypageDTO.ProfileSummary toProfileSummary(User user, List<UserAuthProvider> authProviders) {
 		return MypageDTO.ProfileSummary.builder().name(user.getUserName())
 				.grade(user.getMemberGrade() != null ? user.getMemberGrade().getGradeName().name() : null)
+				.mileage(defaultLong(user.getMileage()))
 				.gradeHint("누적 마일리지 " + NUMBER_FORMAT.format(defaultLong(user.getMileage())))
 				.status("1".equals(user.getEnabled()) ? "활성 회원" : "비활성 회원")
 				.joinedAt(user.getRegDate() != null ? DATE_FORMAT.format(user.getRegDate()) + " 가입" : null).build();
@@ -314,6 +315,7 @@ public class MypageServiceImpl implements MypageService {
 				.guestCount(defaultLong(booking.getGuestCount())).status(booking.getStatus().name())
 				.bookingStatus(booking.getStatus().name()).bookingStatusLabel(toBookingStatusLabel(booking.getStatus()))
 				.bookingAmount(defaultLong(booking.getTotalPrice()))
+				.mileageUsed(defaultLong(booking.getMileageUsed()))
 				.price(formatWon(defaultLong(booking.getTotalPrice())))
 				.canCancel(
 						booking.getStatus() == BookingStatus.PENDING || booking.getStatus() == BookingStatus.CONFIRMED)

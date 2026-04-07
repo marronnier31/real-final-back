@@ -70,6 +70,11 @@ public class Booking extends BaseTimeEntity {
 	@Min(0)
 	private Long discountAmount = 0L;
 
+	@Builder.Default
+	@Column(name = "MILEAGE", nullable = false)
+	@Min(0)
+	private Long mileageUsed = 0L;
+
 	@Column(name = "TOTAL_PRICE", nullable = false)
 	@Min(0)
 	private Long totalPrice;

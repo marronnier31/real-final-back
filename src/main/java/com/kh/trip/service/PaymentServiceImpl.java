@@ -51,7 +51,8 @@ public class PaymentServiceImpl implements PaymentService {
 	public Long save(PaymentDTO paymentDTO, Long userNo) {
 		Booking booking = bookingRepository.findById(paymentDTO.getBookingNo())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다."));
-		if (!booking.getUser().getUserNo().equals(userNo)) {
+		User user = booking.getUser();
+		if (!user.getUserNo().equals(userNo)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 예약만 결제할 수 있습니다.");
 		}
 
@@ -64,6 +65,26 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 		Payment payment = dtoToEntity(paymentDTO);
 		Payment result = paymentRepository.save(payment);
+
+		if (booking.getMileageUsed() != null && booking.getMileageUsed() > 0) {
+			if (user.getMileage() < booking.getMileageUsed()) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT, "보유 마일리지가 부족합니다.");
+			}
+
+			user.useMileage(booking.getMileageUsed());
+			mileageHistoryRepository.save(MileageHistory.builder()
+					.user(user)
+					.booking(booking)
+					.payment(result)
+					.changeType(MileageChangeType.USE)
+					.changeAmount(booking.getMileageUsed())
+					.balanceAfter(user.getMileage())
+					.reason("예약 결제 마일리지 사용")
+					.status(MileageStatus.NORMAL)
+					.build());
+			userRepository.save(user);
+		}
+
 		return result.getPaymentNo();
 	}
 
@@ -149,6 +170,14 @@ public class PaymentServiceImpl implements PaymentService {
 			if (history.getChangeType() == MileageChangeType.EARN && history.getStatus() == MileageStatus.NORMAL) {
 				User user = history.getUser();
 				user.useMileage(history.getChangeAmount());
+				history.changeStatus(MileageStatus.CANCELED);
+				userRepository.save(user);
+				continue;
+			}
+
+			if (history.getChangeType() == MileageChangeType.USE && history.getStatus() == MileageStatus.NORMAL) {
+				User user = history.getUser();
+				user.addMileage(history.getChangeAmount());
 				history.changeStatus(MileageStatus.CANCELED);
 				userRepository.save(user);
 			}

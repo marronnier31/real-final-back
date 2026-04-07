@@ -59,6 +59,7 @@ public class MypageDTO {
 	public static class ProfileSummary {
 		private String name;
 		private String grade;
+		private long mileage;
 		private String gradeHint;
 		private String status;
 		private String joinedAt;
@@ -113,6 +114,7 @@ public class MypageDTO {
 		private String bookingStatus;
 		private String bookingStatusLabel;
 		private long bookingAmount;
+		private long mileageUsed;
 		private String price;
 		private boolean canCancel;
 		private boolean canReview;
@@ -127,6 +129,7 @@ public class MypageDTO {
 		@NotNull
 		private Long roomNo;
 		private Long userCouponNo;
+		private Long mileageUsed;
 		@NotNull
 		private LocalDateTime checkInDate;
 		@NotNull
@@ -146,6 +149,7 @@ public class MypageDTO {
 		private String bookingId;
 		private String bookingStatus;
 		private String bookingStatusLabel;
+		private long mileageUsed;
 		private long totalPrice;
 		private String amount;
 		private LocalDateTime createdAt;

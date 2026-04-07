@@ -26,6 +26,7 @@ public class BookingDTO {
 	private Long guestCount;
 	private Long pricePerNight;
 	private Long discountAmount;
+	private Long mileageUsed;
 	private Long totalPrice;
 	private BookingStatus status;
 	private String requestMessage;

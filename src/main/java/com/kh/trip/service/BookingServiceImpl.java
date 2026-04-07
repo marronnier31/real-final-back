@@ -96,6 +96,7 @@ public class BookingServiceImpl implements BookingService {
 		Long roomPrice = room.getPricePerNight() * daysBetween;
 		Long totalPrice = roomPrice;
 		Long discountAmount = 0L;
+		Long mileageUsed = 0L;
 
 		UserCoupon userCoupon = null;
 		if (bookingDTO.getUserCouponNo() != null) {
@@ -117,10 +118,19 @@ public class BookingServiceImpl implements BookingService {
 			discountAmount = roomPrice - totalPrice;
 		}
 
+		if (bookingDTO.getMileageUsed() != null && bookingDTO.getMileageUsed() > 0) {
+			if (bookingDTO.getMileageUsed() > user.getMileage()) {
+				throw new IllegalArgumentException("보유 마일리지를 초과했습니다.");
+			}
+
+			mileageUsed = Math.min(bookingDTO.getMileageUsed(), totalPrice);
+			totalPrice -= mileageUsed;
+		}
+
 		Booking booking = Booking.builder().user(user).userCoupon(userCoupon).room(room)
 				.checkInDate(bookingDTO.getCheckInDate()).checkOutDate(bookingDTO.getCheckOutDate())
 				.guestCount(bookingDTO.getGuestCount()).pricePerNight(Long.valueOf(room.getPricePerNight()))
-				.discountAmount(discountAmount).totalPrice(totalPrice)
+				.discountAmount(discountAmount).mileageUsed(mileageUsed).totalPrice(totalPrice)
 				.requestMessage(bookingDTO.getRequestMessage()).status(BookingStatus.PENDING).build();
 		Booking savedBooking = repository.save(booking);
 
@@ -271,6 +281,7 @@ public class BookingServiceImpl implements BookingService {
 				.roomName(booking.getRoom().getRoomName()).checkInDate(booking.getCheckInDate())
 				.checkOutDate(booking.getCheckOutDate()).guestCount(booking.getGuestCount())
 				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount())
+				.mileageUsed(booking.getMileageUsed())
 				.totalPrice(booking.getTotalPrice()).status(booking.getStatus())
 				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build())
 				.collect(Collectors.toList());
@@ -285,6 +296,7 @@ public class BookingServiceImpl implements BookingService {
 				.roomName(booking.getRoom().getRoomName()).checkInDate(booking.getCheckInDate())
 				.checkOutDate(booking.getCheckOutDate()).guestCount(booking.getGuestCount())
 				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount())
+				.mileageUsed(booking.getMileageUsed())
 				.totalPrice(booking.getTotalPrice()).status(booking.getStatus())
 				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build();
 	}

@@ -33,4 +33,13 @@ public class BookingDTO {
 	private LocalDateTime regDate;
 	private String lodgingName;
 	private String roomName;
+	private String bookingId;
+	private Long lodgingId;
+	private String stay;
+	private String bookingStatus;
+	private String bookingStatusLabel;
+	private String price;
+	private boolean canCancel;
+	private boolean canReview;
+	private boolean canViewPayment;
 }

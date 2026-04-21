@@ -1,11 +1,13 @@
 package com.kh.trip.service;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,6 +60,8 @@ import lombok.extern.log4j.Log4j2;
 @Transactional
 @Log4j2
 public class BookingServiceImpl implements BookingService {
+
+	private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.KOREA);
 
 	// 이미 있는 결제 취소 로직을 그대로 사용하려고 주입한 service
 	private final PaymentService paymentService;
@@ -283,7 +287,17 @@ public class BookingServiceImpl implements BookingService {
 				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount())
 				.mileageUsed(booking.getMileageUsed())
 				.totalPrice(booking.getTotalPrice()).status(booking.getStatus())
-				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build())
+				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate())
+				.bookingId("B-" + booking.getBookingNo())
+				.lodgingId(booking.getRoom().getLodging().getLodgingNo())
+				.stay(formatStay(booking.getCheckInDate(), booking.getCheckOutDate()))
+				.bookingStatus(booking.getStatus().name())
+				.bookingStatusLabel(booking.getStatus().name())
+				.price(formatWon(defaultLong(booking.getTotalPrice())))
+				.canCancel(booking.getStatus() == BookingStatus.PENDING || booking.getStatus() == BookingStatus.CONFIRMED)
+				.canReview(booking.getStatus() == BookingStatus.COMPLETED)
+				.canViewPayment(paymentRepository.findFirstByBooking_BookingNoOrderByPaymentNoDesc(booking.getBookingNo()).isPresent())
+				.build())
 				.collect(Collectors.toList());
 	}
 
@@ -298,7 +312,17 @@ public class BookingServiceImpl implements BookingService {
 				.pricePerNight(booking.getPricePerNight()).discountAmount(booking.getDiscountAmount())
 				.mileageUsed(booking.getMileageUsed())
 				.totalPrice(booking.getTotalPrice()).status(booking.getStatus())
-				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate()).build();
+				.requestMessage(booking.getRequestMessage()).regDate(booking.getRegDate())
+				.bookingId("B-" + booking.getBookingNo())
+				.lodgingId(booking.getRoom().getLodging().getLodgingNo())
+				.stay(formatStay(booking.getCheckInDate(), booking.getCheckOutDate()))
+				.bookingStatus(booking.getStatus().name())
+				.bookingStatusLabel(booking.getStatus().name())
+				.price(formatWon(defaultLong(booking.getTotalPrice())))
+				.canCancel(booking.getStatus() == BookingStatus.PENDING || booking.getStatus() == BookingStatus.CONFIRMED)
+				.canReview(booking.getStatus() == BookingStatus.COMPLETED)
+				.canViewPayment(paymentRepository.findFirstByBooking_BookingNoOrderByPaymentNoDesc(booking.getBookingNo()).isPresent())
+				.build();
 	}
 
 	@Override
@@ -434,5 +458,20 @@ public class BookingServiceImpl implements BookingService {
 				.lodgingTypeSales(lodgingTypeSales)
 				.monthlySales(monthlySales)
 				.build();
+	}
+
+	private String formatStay(LocalDateTime checkIn, LocalDateTime checkOut) {
+		if (checkIn == null || checkOut == null) {
+			return null;
+		}
+		return checkIn.toLocalDate() + " - " + checkOut.toLocalDate();
+	}
+
+	private String formatWon(long amount) {
+		return NUMBER_FORMAT.format(amount) + "원";
+	}
+
+	private long defaultLong(Long value) {
+		return value != null ? value : 0L;
 	}
 }

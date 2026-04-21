@@ -94,11 +94,15 @@ public class BookingServiceImpl implements BookingService {
 			throw new IllegalArgumentException("선택하신 날짜로는 예약이 불가한 객실입니다.");
 		}
 
+		if(bookingDTO.getGuestCount() > room.getMaxGuestCount()) {
+			throw new IllegalArgumentException("객실 최대 수용인원을 초과하셨습니다.");
+		}
+		
 		// 숙박 일수 계산 (체크아웃 날짜 - 체크인 날짜)
 		Long daysBetween = ChronoUnit.DAYS.between(bookingDTO.getCheckInDate().toLocalDate(),
 				bookingDTO.getCheckOutDate().toLocalDate());
 		Long roomPrice = room.getPricePerNight() * daysBetween;
-		Long totalPrice = roomPrice;
+		Long totalPrice = roomPrice * bookingDTO.getGuestCount();
 		Long discountAmount = 0L;
 
 		UserCoupon userCoupon = null;

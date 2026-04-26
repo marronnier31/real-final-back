@@ -118,12 +118,12 @@ public class BookingServiceImpl implements BookingService {
 			DiscountType type = userCoupon.getCoupon().getDiscountType();
 			Long discountValue = userCoupon.getCoupon().getDiscountValue();
 
-			Long discountedPrice = type.calculate(roomPrice, discountValue);
+			Long discountedPrice = type.calculate(totalPrice, discountValue);
 			if (discountedPrice < 0) {
 				discountedPrice = 0L;
 			}
 
-			couponDiscountAmount = roomPrice - discountedPrice;
+			couponDiscountAmount = totalPrice - discountedPrice;
 			totalPrice = discountedPrice;
 		}
 
@@ -308,7 +308,7 @@ public class BookingServiceImpl implements BookingService {
 	public BookingDTO entityToDTO(Long bookingNo) {
 		Optional<Booking> result = repository.findById(bookingNo);
 		Booking booking = result.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약번호입니다."));
-		return BookingDTO.builder().bookingNo(booking.getBookingNo()).userNo(booking.getUser().getUserNo())
+		return BookingDTO.builder().bookingNo(booking.getBookingNo()).userNo(booking.getUser().getUserNo()).userName(booking.getUser().getUserName())
 				.roomNo(booking.getRoom().getRoomNo()).lodgingName(booking.getRoom().getLodging().getLodgingName())
 				.userCouponNo(booking.getUserCoupon() != null ? booking.getUserCoupon().getUserCouponNo() : null)
 				.roomName(booking.getRoom().getRoomName()).checkInDate(booking.getCheckInDate())

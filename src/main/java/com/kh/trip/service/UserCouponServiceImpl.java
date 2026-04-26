@@ -128,7 +128,7 @@ public class UserCouponServiceImpl implements UserCouponService {
     }
 
     private String formatDiscount(Coupon coupon) {
-        if ("RATE".equals(coupon.getDiscountType().name())) {
+        if ("PERCENT".equals(coupon.getDiscountType().name())) {
             return coupon.getDiscountValue() + "%";
         }
         return NUMBER_FORMAT.format(coupon.getDiscountValue()) + "원";

@@ -39,6 +39,7 @@ public class BookingDTO {
 	private String bookingStatus;
 	private String bookingStatusLabel;
 	private String price;
+	private Long couponDiscountAmount;
 	private boolean canCancel;
 	private boolean canReview;
 	private boolean canViewPayment;
